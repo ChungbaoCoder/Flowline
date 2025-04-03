@@ -1,6 +1,0 @@
-@ps40165_Main_HostAddress = http://localhost:5072
-
-GET {{ps40165_Main_HostAddress}}/weatherforecast/
-Accept: application/json
-
-###

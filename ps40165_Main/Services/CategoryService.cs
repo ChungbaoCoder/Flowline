@@ -1,4 +1,10 @@
-﻿using ps40165_Main.Database;
+﻿using Microsoft.EntityFrameworkCore;
+using ps40165_Main.Commands;
+using ps40165_Main.Database;
+using ps40165_Main.Database.DbResponse;
+using ps40165_Main.Database.DbResponse.ErrorDoc;
+using ps40165_Main.Dtos;
+using ps40165_Main.Models;
 
 namespace ps40165_Main.Services;
 
@@ -11,38 +17,112 @@ public class CategoryService
         _context = context;
     }
 
-    public async Task GetListCategories()
+    public async Task<IDbResponse> GetListCategories(QueryPageCommand request)
     {
+        int pageNumber = request.PageNumber < 1 ? 1 : request.PageNumber;
+        int pageSize = request.PageSize < 1 ? 10 : request.PageSize;
 
+        var categories = await _context.Categories
+            .Skip((pageNumber - 1) * pageSize)
+            .Take(pageSize)
+            .Select(c => new CategoryDto
+                {
+                    Name = c.Name,
+                    Description = c.Description
+                })
+            .ToListAsync();
+
+        if (categories.Count < 1)
+        {
+            return DbResponse.Failure(new CategoryError().NotFound());
+        }
+
+        int totalCount = await _context.Products.CountAsync();
+        int totalPages = (int)Math.Ceiling(totalCount / (double)pageSize);
+
+        PaginationMetadata meta = new PaginationMetadata
+        {
+            CurrentPage = pageNumber,
+            PageSize = pageSize,
+            TotalCount = totalCount,
+            TotalPages = totalPages
+        };
+
+        return DbPagination<CategoryDto>.GiveBack(meta, categories);
     }
 
-    public async Task GetCategoryById()
+    public async Task<IDbResponse> GetCategoryById(int categoryId)
     {
+        var found = await _context.Categories.FindAsync(categoryId);
 
+        if (found == null)
+            return DbResponse.Failure(new CategoryError().NotFound());
+
+        CategoryDto category = new CategoryDto { Name = found.Name, Description = found.Description };
+
+        return DbQuery<CategoryDto>.GiveBack(category);
     }
 
-    public async Task AddCategory()
+    public async Task<IDbResponse> AddCategory(AddCategoryCommand request)
     {
+        Category category = new Category { Name = request.Name, Description = request.Description };
 
+        await _context.Categories.AddAsync(category);
+        await _context.SaveChangesAsync();
+
+        return DbResponse.Success;
     }
 
-    public async Task EditCategory()
+    public async Task<IDbResponse> EditCategory(EditCategoryCommand request)
     {
+        var found = await _context.Categories.FindAsync(request.CategoryId);
 
+        if (found == null)
+            return DbResponse.Failure(new CategoryError().NotFound());
+
+        found.Name = request.Name;
+        found.Description = request.Description;
+
+        await _context.SaveChangesAsync();
+        return DbResponse.Success;
     }
 
-    public async Task MakeActive()
+    public async Task<IDbResponse> MakeActive(int categoryId)
     {
+        var found = await _context.Categories.FindAsync(categoryId);
 
+        if (found == null)
+            return DbResponse.Failure(new CategoryError().NotFound());
+
+        found.Active = true;
+
+        await _context.SaveChangesAsync();
+        return DbResponse.Success;
     }
 
-    public async Task MakeInactive()
+    public async Task<IDbResponse> MakeInactive(int categoryId)
     {
+        var found = await _context.Categories.FindAsync(categoryId);
 
+        if (found == null)
+            return DbResponse.Failure(new CategoryError().NotFound());
+
+        found.Active = false;
+
+        await _context.SaveChangesAsync();
+        return DbResponse.Success;
     }
 
-    public async Task DeleteCategory()
+    public async Task<IDbResponse> DeleteCategory(int categoryId)
     {
+        var found = await _context.Categories.FindAsync(categoryId);
 
+        if (found == null)
+            return DbResponse.Failure(new CategoryError().NotFound());
+
+        _context.Categories.Remove(found);
+
+        await _context.SaveChangesAsync();
+        return DbResponse.Success;
     }
 }

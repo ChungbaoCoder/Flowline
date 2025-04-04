@@ -29,5 +29,13 @@ public class CategoryMap : IEntityTypeConfiguration<Category>
         builder.HasMany(c => c.Products)
             .WithOne(p => p.Category)
             .HasForeignKey(c => c.CategoryId);
+
+        builder.Property(c => c.CreatedOnUtc)
+            .HasDefaultValueSql("GETUTCDATE()")
+            .ValueGeneratedOnAdd();
+
+        builder.Property(c => c.UpdatedOnUtc)
+            .HasDefaultValueSql("GETUTCDATE()")
+            .ValueGeneratedOnAddOrUpdate();
     }
 }

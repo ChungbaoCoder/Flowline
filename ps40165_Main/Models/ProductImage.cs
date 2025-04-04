@@ -19,5 +19,13 @@ public class ProductImageMap : IEntityTypeConfiguration<ProductImage>
         builder.Property(pi => pi.ImagePath)
             .IsRequired(false)
             .HasColumnType("nvarchar(256)");
+
+        builder.Property(c => c.CreatedOnUtc)
+            .HasDefaultValueSql("GETUTCDATE()")
+            .ValueGeneratedOnAdd();
+
+        builder.Property(c => c.UpdatedOnUtc)
+            .HasDefaultValueSql("GETUTCDATE()")
+            .ValueGeneratedOnAddOrUpdate();
     }
 }

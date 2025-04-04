@@ -48,5 +48,13 @@ public class ProductMap : IEntityTypeConfiguration<Product>
 
         builder.Property(p => p.DisableBuyButton)
             .HasDefaultValue(false);
+
+        builder.Property(c => c.CreatedOnUtc)
+            .HasDefaultValueSql("GETUTCDATE()")
+            .ValueGeneratedOnAdd();
+
+        builder.Property(c => c.UpdatedOnUtc)
+            .HasDefaultValueSql("GETUTCDATE()")
+            .ValueGeneratedOnAddOrUpdate();
     }
 }

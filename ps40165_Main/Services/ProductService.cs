@@ -93,9 +93,9 @@ public class ProductService
         return DbResponse.Success;
     }
 
-    public async Task<IDbResponse> EditProduct(EditProductCommand request)
+    public async Task<IDbResponse> EditProduct(int productId, EditProductCommand request)
     {
-        var found = await _context.Products.FindAsync(request.ProductId);
+        var found = await _context.Products.FindAsync(productId);
 
         if (found == null)
             return DbResponse.Failure(new ProductError().NotFound());

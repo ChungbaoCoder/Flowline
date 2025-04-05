@@ -15,8 +15,6 @@ public class AddProductCommand
 
 public class EditProductCommand
 {
-    public int ProductId { get; set; }
-
     public required string Name { get; set; }
 
     public string Description { get; set; } = string.Empty;

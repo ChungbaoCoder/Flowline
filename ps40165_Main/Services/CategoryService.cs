@@ -73,9 +73,9 @@ public class CategoryService
         return DbResponse.Success;
     }
 
-    public async Task<IDbResponse> EditCategory(EditCategoryCommand request)
+    public async Task<IDbResponse> EditCategory(int categoryId, EditCategoryCommand request)
     {
-        var found = await _context.Categories.FindAsync(request.CategoryId);
+        var found = await _context.Categories.FindAsync(categoryId);
 
         if (found == null)
             return DbResponse.Failure(new CategoryError().NotFound());

@@ -27,8 +27,10 @@ public class CategoryService
             .Take(pageSize)
             .Select(c => new CategoryDto
                 {
+                    CategoryId = c.Id,
                     Name = c.Name,
-                    Description = c.Description
+                    Description = c.Description,
+                    Active = c.Active
                 })
             .ToListAsync();
 

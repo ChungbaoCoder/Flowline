@@ -27,6 +27,7 @@ public class ProductService
             .Take(pageSize)
             .Select(c => new ProductDto
             {
+                ProductId = c.Id,
                 Name = c.Name,
                 Description = c.Description,
                 UnderDescription = c.UnderDescription,
@@ -79,6 +80,7 @@ public class ProductService
     {
         Product product = new Product
         {
+            CategoryId = request.CategoryId,
             Name = request.Name,
             Description = request.Description,
             UnderDescription = request.UnderDescription,
@@ -100,6 +102,7 @@ public class ProductService
         if (found == null)
             return DbResponse.Failure(new ProductError().NotFound());
 
+        found.CategoryId = request.CategoryId;
         found.Name = request.Name;
         found.Description = request.Description;
         found.UnderDescription = request.UnderDescription;

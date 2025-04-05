@@ -1,8 +1,10 @@
-﻿namespace ps40165_Main.Dtos;
+﻿namespace ps40165_Admin.Models;
 
-public class ProductDto
+public class Product
 {
     public int ProductId { get; set; }
+
+    public int CategoryId { get; set; }
 
     public required string Name { get; set; }
 
@@ -13,8 +15,4 @@ public class ProductDto
     public int StockLevel { get; set; }
 
     public decimal Price { get; set; }
-
-    public bool Active { get; set; }
-
-    public bool DisableBuyButton { get; set; }
 }

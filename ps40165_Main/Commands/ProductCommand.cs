@@ -2,6 +2,8 @@
 
 public class AddProductCommand
 {
+    public int CategoryId { get; set; }
+
     public required string Name { get; set; }
 
     public string Description { get; set; } = string.Empty;
@@ -15,6 +17,8 @@ public class AddProductCommand
 
 public class EditProductCommand
 {
+    public int CategoryId { get; set; }
+
     public required string Name { get; set; }
 
     public string Description { get; set; } = string.Empty;

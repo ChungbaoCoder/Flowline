@@ -9,9 +9,9 @@ public class Product : BaseEntity
 
     public required string Name { get; set; }
 
-    public string? Description { get; set; }
+    public string Description { get; set; } = string.Empty;
 
-    public string? UnderDescription { get; set; }
+    public string UnderDescription { get; set; } = string.Empty;
 
     public int StockLevel { get; set; }
 

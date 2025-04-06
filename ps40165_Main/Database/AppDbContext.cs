@@ -15,6 +15,12 @@ public class AppDbContext : DbContext
 
     public DbSet<ProductImage> ProductImages { get; set; }
 
+    public DbSet<Order> Orders { get; set; }
+
+    public DbSet<OrderItem> Items { get; set; }
+
+    public DbSet<Account> Accounts { get; set; }
+
     protected override void OnModelCreating(ModelBuilder modelBuilder)
     {
         base.OnModelCreating(modelBuilder);
@@ -22,5 +28,8 @@ public class AppDbContext : DbContext
         new CategoryMap().Configure(modelBuilder.Entity<Category>());
         new ProductMap().Configure(modelBuilder.Entity<Product>());
         new ProductImageMap().Configure(modelBuilder.Entity<ProductImage>());
+        new AccountMap().Configure(modelBuilder.Entity<Account>());
+        new OrderMap().Configure(modelBuilder.Entity<Order>());
+        new OrderItemMap().Configure(modelBuilder.Entity<OrderItem>());
     }
 }

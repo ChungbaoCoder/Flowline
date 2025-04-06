@@ -8,6 +8,20 @@ public class ProductImage : BaseEntity
     public int ProductId { get; set; }
 
     public string? ImagePath { get; set; }
+
+    public bool MainImage { get; set; }
+
+    public int? Height { get; set; }
+
+    public int? Width { get; set; }
+
+    //Tracking Object Date
+    public DateTime CreatedOnUtc { get; set; }
+
+    public DateTime UpdatedOnUtc { get; set; }
+
+    //RelationShip
+    public Product Product { get; set; }
 }
 
 public class ProductImageMap : IEntityTypeConfiguration<ProductImage>
@@ -18,13 +32,14 @@ public class ProductImageMap : IEntityTypeConfiguration<ProductImage>
 
         builder.Property(pi => pi.ImagePath)
             .IsRequired(false)
+            .HasMaxLength(256)
             .HasColumnType("nvarchar(256)");
 
-        builder.Property(c => c.CreatedOnUtc)
+        builder.Property(pi => pi.CreatedOnUtc)
             .HasDefaultValueSql("GETUTCDATE()")
             .ValueGeneratedOnAdd();
 
-        builder.Property(c => c.UpdatedOnUtc)
+        builder.Property(pi => pi.UpdatedOnUtc)
             .HasDefaultValueSql("GETUTCDATE()")
             .ValueGeneratedOnAddOrUpdate();
     }

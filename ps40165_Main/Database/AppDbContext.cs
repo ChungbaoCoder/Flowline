@@ -17,7 +17,7 @@ public class AppDbContext : DbContext
 
     public DbSet<Order> Orders { get; set; }
 
-    public DbSet<OrderItem> Items { get; set; }
+    public DbSet<OrderItem> OrderItems { get; set; }
 
     public DbSet<Account> Accounts { get; set; }
 

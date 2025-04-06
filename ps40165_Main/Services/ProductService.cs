@@ -33,7 +33,6 @@ public class ProductService
                 UnderDescription = c.UnderDescription,
                 StockLevel = c.StockLevel,
                 Price = c.Price,
-                Active = c.Active,
                 DisableBuyButton = c.DisableBuyButton
             })
             .ToListAsync();
@@ -86,7 +85,6 @@ public class ProductService
             UnderDescription = request.UnderDescription,
             StockLevel = request.StockLevel,
             Price = request.Price,
-            Active = true
         };
 
         await _context.Products.AddAsync(product);
@@ -119,8 +117,6 @@ public class ProductService
         if (found == null)
             return DbResponse.Failure(new ProductError().NotFound());
 
-        found.Active = true;
-
         await _context.SaveChangesAsync();
         return DbResponse.Success;
     }
@@ -131,8 +127,6 @@ public class ProductService
 
         if (found == null)
             return DbResponse.Failure(new ProductError().NotFound());
-
-        found.Active = false;
 
         await _context.SaveChangesAsync();
         return DbResponse.Success;

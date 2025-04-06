@@ -96,8 +96,6 @@ public class CategoryService
         if (found == null)
             return DbResponse.Failure(new CategoryError().NotFound());
 
-        found.Active = true;
-
         await _context.SaveChangesAsync();
         return DbResponse.Success;
     }
@@ -108,8 +106,6 @@ public class CategoryService
 
         if (found == null)
             return DbResponse.Failure(new CategoryError().NotFound());
-
-        found.Active = false;
 
         await _context.SaveChangesAsync();
         return DbResponse.Success;

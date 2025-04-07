@@ -1,4 +1,6 @@
-﻿namespace ps40165_Main.Database.DbResponse;
+﻿using ps40165_Main.Database.DbResponse.ErrorDoc;
+
+namespace ps40165_Main.Database.DbResponse;
 
 public class DbQuery<TDto> : IDbResponse
 {
@@ -14,6 +16,8 @@ public class DbQuery<TDto> : IDbResponse
     }
 
     public bool IsSuccess { get; }
+
+    public IError Error { get; }
 
     public TDto Data { get; }
 

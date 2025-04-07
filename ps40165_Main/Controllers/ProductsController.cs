@@ -1,5 +1,7 @@
 ﻿using Microsoft.AspNetCore.Mvc;
 using ps40165_Main.Commands;
+using ps40165_Main.Database.DbResponse;
+using ps40165_Main.Dtos;
 using ps40165_Main.Services;
 
 namespace ps40165_Main.Controllers;
@@ -8,11 +10,11 @@ namespace ps40165_Main.Controllers;
 [ApiController]
 public class ProductsController : ControllerBase
 {
-    private readonly ProductService _service;
+    private readonly ProductService _product;
 
-    public ProductsController(ProductService service)
+    public ProductsController(ProductService product)
     {
-        _service = service;
+        _product = product;
     }
 
     [HttpGet]
@@ -23,15 +25,28 @@ public class ProductsController : ControllerBase
             return BadRequest(ModelState);
         }
 
-        var result = await _service.GetListProducts(request);
+        var result = await _product.GetListProducts(request);
 
-        if (result.IsSuccess)
+        if (result.IsSuccess && result is DbPagination<ProductDto> query)
         {
-            return Ok(result);
+            return Created(HttpContext.Request.Path, new CentralResponse<List<ProductDto>>
+            {
+                IsSuccess = result.IsSuccess,
+                Pagination = query.Metadata,
+                Data = query.Data
+            });
+        }
+        else if (!result.IsSuccess && result is DbResponse response)
+        {
+            return BadRequest(new CentralResponse
+            {
+                IsSuccess = !result.IsSuccess,
+                Error = new Error(response.Error.Type, response.Error.Detail)
+            });
         }
         else
         {
-            return NotFound(result);
+            return BadRequest(result);
         }
     }
 
@@ -43,15 +58,27 @@ public class ProductsController : ControllerBase
             return BadRequest();
         }
 
-        var result = await _service.GetProductById(id);
+        var result = await _product.GetProductById(id);
 
-        if (result.IsSuccess)
+        if (result.IsSuccess && result is DbQuery<ProductDto> query)
         {
-            return Ok(result);
+            return Created(HttpContext.Request.Path, new CentralResponse<ProductDto>
+            {
+                IsSuccess = result.IsSuccess,
+                Data = query.Data
+            });
+        }
+        else if (!result.IsSuccess && result is DbResponse response)
+        {
+            return BadRequest(new CentralResponse
+            {
+                IsSuccess = !result.IsSuccess,
+                Error = new Error(response.Error.Type, response.Error.Detail)
+            });
         }
         else
         {
-            return NotFound(result);
+            return BadRequest(result);
         }
     }
 
@@ -63,11 +90,22 @@ public class ProductsController : ControllerBase
             return BadRequest(ModelState);
         }
 
-        var result = await _service.AddProduct(request);
+        var result = await _product.AddProduct(request);
 
-        if (result.IsSuccess)
+        if (result.IsSuccess && result is DbResponse)
         {
-            return Created(HttpContext.Request.Path, result);
+            return Created(HttpContext.Request.Path, new CentralResponse
+            {
+                IsSuccess = result.IsSuccess
+            });
+        }
+        else if (!result.IsSuccess && result is DbResponse failure)
+        {
+            return BadRequest(new CentralResponse
+            {
+                IsSuccess = !result.IsSuccess,
+                Error = new Error(failure.Error.Type, failure.Error.Detail)
+            });
         }
         else
         {
@@ -83,15 +121,55 @@ public class ProductsController : ControllerBase
             return BadRequest(ModelState);
         }
 
-        var result = await _service.EditProduct(id, request);
+        var result = await _product.EditProduct(id, request);
 
-        if (result.IsSuccess)
+        if (result.IsSuccess && result is DbResponse)
         {
-            return Ok(result);
+            return Created(HttpContext.Request.Path, new CentralResponse
+            {
+                IsSuccess = result.IsSuccess
+            });
+        }
+        else if (!result.IsSuccess && result is DbResponse failure)
+        {
+            return BadRequest(new CentralResponse
+            {
+                IsSuccess = !result.IsSuccess,
+                Error = new Error(failure.Error.Type, failure.Error.Detail)
+            });
         }
         else
         {
-            return NotFound(result);
+            return BadRequest(result);
+        }
+    }
+
+    [HttpDelete("{id}")]
+    public async Task<IActionResult> DeleteProduct(int id)
+    {
+        if (id < 0)
+            return BadRequest();
+
+        var result = await _product.DeleteProduct(id);
+
+        if (result.IsSuccess && result is DbResponse)
+        {
+            return Created(HttpContext.Request.Path, new CentralResponse
+            {
+                IsSuccess = result.IsSuccess
+            });
+        }
+        else if (!result.IsSuccess && result is DbResponse failure)
+        {
+            return BadRequest(new CentralResponse
+            {
+                IsSuccess = !result.IsSuccess,
+                Error = new Error(failure.Error.Type, failure.Error.Detail)
+            });
+        }
+        else
+        {
+            return BadRequest(result);
         }
     }
 }

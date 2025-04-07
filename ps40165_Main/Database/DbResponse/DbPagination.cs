@@ -1,4 +1,6 @@
-﻿namespace ps40165_Main.Database.DbResponse;
+﻿using ps40165_Main.Database.DbResponse.ErrorDoc;
+
+namespace ps40165_Main.Database.DbResponse;
 
 public class DbPagination<TDto> : IDbResponse
 {
@@ -15,6 +17,8 @@ public class DbPagination<TDto> : IDbResponse
     }
 
     public bool IsSuccess { get; }
+
+    public IError Error { get; }
 
     public PaginationMetadata Metadata { get; }
 

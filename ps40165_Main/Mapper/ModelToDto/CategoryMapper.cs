@@ -7,8 +7,8 @@ public class CategoryMapper : IMapper<Category, CategoryDto>
 {
     public CategoryDto Map(Category src)
     {
-        return new CategoryDto 
-        { 
+        return new CategoryDto
+        {
             CategoryId = src.Id,
             Name = src.Name,
             Alias = src.Alias ?? "",

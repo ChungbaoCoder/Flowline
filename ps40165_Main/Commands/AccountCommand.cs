@@ -1,0 +1,19 @@
+﻿namespace ps40165_Main.Commands;
+
+public class RegisterUserCommand
+{
+    public required string Name { get; set; }
+
+    public required string Email { get; set; }
+
+    public required string Password { get; set; }
+
+    public string? PhoneNumber { get; set; }
+}
+
+public class LoginUserCommand
+{
+    public string Email { get; set; }
+
+    public string Password { get; set; }
+}

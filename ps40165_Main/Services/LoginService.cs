@@ -1,6 +1,7 @@
 ﻿using ps40165_Main.Commands;
 using ps40165_Main.Database.DbResponse;
 using ps40165_Main.Database.DbResponse.ErrorDoc;
+using ps40165_Main.Dtos;
 using ps40165_Main.Models;
 
 namespace ps40165_Main.Services;
@@ -25,13 +26,14 @@ public class LoginService
         if (account is null)
             return DbResponse.Failure(new LoginError().NotFound());
 
-        bool verified = _hasher.Verify(account.Email, account.PasswordHash);
+        bool verified = _hasher.Verify(request.Password, account.PasswordHash);
 
         if (!verified)
             return DbResponse.Failure(new LoginError().PasswordIncorrect());
 
-        string token = _jwt.GenerateToken(account);
+        TokenDto token = new TokenDto();
+        token.Token = _jwt.GenerateToken(account);
 
-        return DbQuery<object>.GiveBack(new { Token = token });
+        return DbQuery<TokenDto>.GiveBack(token);
     }
 }

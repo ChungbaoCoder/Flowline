@@ -1,4 +1,8 @@
+using System.Text;
+using System.Text.Json.Serialization;
+using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.EntityFrameworkCore;
+using Microsoft.IdentityModel.Tokens;
 using ps40165_Main.Database;
 using ps40165_Main.Services;
 using Scalar.AspNetCore;
@@ -13,8 +17,19 @@ builder.Services.AddDbContext<AppDbContext>(o =>
 
 builder.Services.AddScoped<CategoryService>();
 builder.Services.AddScoped<ProductService>();
+builder.Services.AddScoped<ProductImageService>();
+builder.Services.AddScoped<OrderService>();
+builder.Services.AddScoped<AccountService>();
+builder.Services.AddScoped<PasswordHasher>();
+builder.Services.AddScoped<LoginService>();
+builder.Services.AddScoped<JwtGenerateService>();
 
 builder.Services.AddControllers();
+builder.Services.AddControllers().AddJsonOptions(options =>
+{
+    options.JsonSerializerOptions.DefaultIgnoreCondition = JsonIgnoreCondition.WhenWritingNull;
+});
+
 // Learn more about configuring OpenAPI at https://aka.ms/aspnet/openapi
 builder.Services.AddOpenApi();
 
@@ -35,6 +50,23 @@ builder.Services.AddCors(options =>
                .WithHeaders("Content-Type", "Authorization");
     });
 });
+
+builder.Services.AddAuthentication(JwtBearerDefaults.AuthenticationScheme)
+        .AddJwtBearer(options =>
+        {
+            options.RequireHttpsMetadata = false;
+            options.SaveToken = true;
+            options.TokenValidationParameters = new TokenValidationParameters
+            {
+                ValidateIssuer = true,
+                ValidateAudience = true,
+                ValidateLifetime = true,
+                ValidateIssuerSigningKey = true,
+                ValidIssuer = builder.Configuration["Jwt:Issuer"],
+                ValidAudience = builder.Configuration["Jwt:Audience"],
+                IssuerSigningKey = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(builder.Configuration["Jwt:SecretKey"]))
+            };
+        });
 
 var app = builder.Build();
 

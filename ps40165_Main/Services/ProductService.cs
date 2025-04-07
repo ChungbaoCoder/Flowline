@@ -1,11 +1,11 @@
 ﻿using Microsoft.EntityFrameworkCore;
 using ps40165_Main.Commands;
 using ps40165_Main.Database;
-using ps40165_Main.Database.DbResponse.ErrorDoc;
 using ps40165_Main.Database.DbResponse;
+using ps40165_Main.Database.DbResponse.ErrorDoc;
 using ps40165_Main.Dtos;
-using ps40165_Main.Models;
 using ps40165_Main.Mapper.ModelToDto;
+using ps40165_Main.Models;
 
 namespace ps40165_Main.Services;
 
@@ -29,19 +29,19 @@ public class ProductService
             .Take(pageSize)
             .Include(p => p.Category)
             .Include(p => p.ProductImages)
-            .Select(p => new Product 
-                { 
-                    Id = p.Id,
-                    SKU = p.SKU,
-                    Name = p.Name,
-                    Description = p.Description,
-                    UnderDescription = p.UnderDescription,
-                    StockLevel = p.StockLevel,
-                    Price = p.Price,
-                    DisableBuyButton = p.DisableBuyButton,
-                    Category = p.Category,
-                    ProductImages = p.ProductImages
-                })
+            .Select(p => new Product
+            {
+                Id = p.Id,
+                SKU = p.SKU,
+                Name = p.Name,
+                Description = p.Description,
+                UnderDescription = p.UnderDescription,
+                StockLevel = p.StockLevel,
+                Price = p.Price,
+                DisableBuyButton = p.DisableBuyButton,
+                Category = p.Category,
+                ProductImages = p.ProductImages
+            })
             .ToListAsync();
 
         if (products.Count < 1)
@@ -62,7 +62,7 @@ public class ProductService
 
         List<ProductDto> data = new List<ProductDto>();
 
-        foreach (var product in products)
+        foreach (Product product in products)
             data.Add(new ProductMapper().Map(product));
 
         return DbPagination<ProductDto>.GiveBack(meta, data);
@@ -75,19 +75,19 @@ public class ProductService
             .Include(p => p.Category)
             .Include(p => p.ProductImages)
             .Where(p => p.Id == productId)
-            .Select(p => new Product 
-                {
-                    Id = p.Id,
-                    SKU = p.SKU,
-                    Name = p.Name,
-                    Description = p.Description,
-                    UnderDescription = p.UnderDescription,
-                    StockLevel = p.StockLevel,
-                    Price = p.Price,
-                    DisableBuyButton = p.DisableBuyButton,
-                    Category = p.Category,
-                    ProductImages = p.ProductImages
-                })
+            .Select(p => new Product
+            {
+                Id = p.Id,
+                SKU = p.SKU,
+                Name = p.Name,
+                Description = p.Description,
+                UnderDescription = p.UnderDescription,
+                StockLevel = p.StockLevel,
+                Price = p.Price,
+                DisableBuyButton = p.DisableBuyButton,
+                Category = p.Category,
+                ProductImages = p.ProductImages
+            })
             .FirstOrDefaultAsync();
 
         if (result == null)
@@ -102,11 +102,8 @@ public class ProductService
     {
         Product product = new Product
         {
-<<<<<<< HEAD
             CategoryId = request.CategoryId,
-=======
             SKU = request.SKU,
->>>>>>> 2b0e6ac (Mass update models, add Order, OrderItem, Account model and fix some services. Add hand mapper)
             Name = request.Name,
             Description = request.Description,
             UnderDescription = request.UnderDescription,
@@ -127,11 +124,8 @@ public class ProductService
         if (found == null)
             return DbResponse.Failure(new ProductError().NotFound());
 
-<<<<<<< HEAD
         found.CategoryId = request.CategoryId;
-=======
         found.SKU = request.SKU;
->>>>>>> 2b0e6ac (Mass update models, add Order, OrderItem, Account model and fix some services. Add hand mapper)
         found.Name = request.Name;
         found.Description = request.Description;
         found.UnderDescription = request.UnderDescription;

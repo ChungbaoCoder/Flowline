@@ -54,7 +54,7 @@ public class CategoryService
 
         List<CategoryDto> data = new List<CategoryDto>();
 
-        foreach (var category in categories)
+        foreach (Category category in categories)
             data.Add(new CategoryMapper().Map(category));
 
         return DbPagination<CategoryDto>.GiveBack(meta, data);
@@ -74,7 +74,7 @@ public class CategoryService
 
     public async Task<IDbResponse> AddCategory(AddCategoryCommand request)
     {
-        Category category = new Category { Name = request.Name, Description = request.Description };
+        Category category = new Category { Name = request.Name, Alias = request.Alias, Description = request.Description };
 
         await _context.Categories.AddAsync(category);
         await _context.SaveChangesAsync();

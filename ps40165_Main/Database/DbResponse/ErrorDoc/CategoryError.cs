@@ -2,6 +2,7 @@
 
 public class CategoryError : IError
 {
+    public string Type => "Category";
     public List<string> Detail { get; }
 
     public CategoryError()

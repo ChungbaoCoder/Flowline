@@ -9,6 +9,4 @@ public class CategoryDto
     public string Alias { get; set; } = string.Empty;
 
     public string Description { get; set; } = string.Empty;
-
-    public bool Active { get; set; }
 }

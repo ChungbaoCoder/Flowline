@@ -1,4 +1,5 @@
 ﻿using Microsoft.EntityFrameworkCore;
+using ps40165_Main.Commands;
 using ps40165_Main.Database;
 using ps40165_Main.Database.DbResponse;
 using ps40165_Main.Database.DbResponse.ErrorDoc;
@@ -17,33 +18,71 @@ public class OrderService
         _context = context;
     }
 
-    public async Task<IDbResponse> AddOrder(int accountId)
+    public async Task<IDbResponse> MakeOrder(MakeOrderCommand request)
     {
-        Order order = new Order { AccountId = accountId };
+        List<int> productIds = request.Items.Select(c => c.ProductId).Distinct().ToList();
 
-        await _context.Orders.AddAsync(order);
-        await _context.SaveChangesAsync();
+        List<Product> products = await _context.Products
+            .Where(p => productIds.Contains(p.Id))
+            .ToListAsync();
 
-        return DbResponse.Success;
-    }
+        OrderError error = new OrderError();
+        bool miss = false;
 
-    public async Task<IDbResponse> AddItemsToOrder(int orderId, List<OrderItem> orderItems)
-    {
-        var found = await _context.Orders
-            .Include(o => o.OrderItems)
-            .FirstOrDefaultAsync(o => o.Id == orderId);
+        foreach (Product product in products)
+        {
+            foreach (OrderedItemCommand orderedItem in request.Items)
+            {
+                if (product.Id == orderedItem.ProductId)
+                {
+                    if (product.StockLevel > orderedItem.Quantity)
+                    {
+                        product.StockLevel -= orderedItem.Quantity;
+                        orderedItem.SKU = product.SKU;
+                        orderedItem.ImagePath = product.ProductImages.FirstOrDefault(pi => pi.MainImage == true)?.ImagePath;
+                        orderedItem.Price = product.Price;
+                    }
+                    else
+                    {
+                        miss = true;
+                        error.LowStock(product.StockLevel, orderedItem.Quantity);
+                    }
+                }
+            }
+        }
 
-        if (found == null)
-            return DbResponse.Failure(new OrderError().NotFound());
+        List<OrderItem> orderItems = request.Items
+            .GroupBy(item => item.ProductId)
+            .Select(group => new OrderItem
+            {
+                ProductId = group.Key,
+                Quantity = group.Sum(item => item.Quantity),
+                SKU = group.First().SKU,
+                ImagePath = group.First().ImagePath,
+                Price = group.First().Price,
+            })
+            .ToList();
 
-        foreach (var item in orderItems) 
-            found.OrderItems.Add(item);
+        decimal total = orderItems.Sum(oi => oi.Total);
 
-        found.Total = orderItems.Sum(oi => oi.Total);
+        Order order = new Order
+        {
+            AccountId = request.AccountId,
+            OrderDate = request.OrderDate,
+            Status = request.Status,
+            Total = total,
+            OrderItems = orderItems
+        };
 
-        await _context.SaveChangesAsync();
+        if (!miss)
+        {
+            await _context.Orders.AddAsync(order);
+            await _context.SaveChangesAsync();
+        }
+        else
+            return DbResponse.Failure(error);
 
-        OrderDto data = new OrderMapper().Map(found);
+        OrderDto data = new OrderMapper().Map(order);
 
         return DbQuery<OrderDto>.GiveBack(data);
     }

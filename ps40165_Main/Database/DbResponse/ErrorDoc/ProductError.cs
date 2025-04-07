@@ -2,6 +2,7 @@
 
 public class ProductError : IError
 {
+    public string Type => "Product";
     public List<string> Detail { get; }
 
     public ProductError()

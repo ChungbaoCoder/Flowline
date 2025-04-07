@@ -2,8 +2,8 @@
 
 public class ProductImageError : IError
 {
+    public string Type => "ProductImage";
     public List<string> Detail { get; }
-
 
     public ProductImageError()
     {

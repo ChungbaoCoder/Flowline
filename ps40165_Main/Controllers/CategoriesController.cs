@@ -1,5 +1,7 @@
 ﻿using Microsoft.AspNetCore.Mvc;
 using ps40165_Main.Commands;
+using ps40165_Main.Database.DbResponse;
+using ps40165_Main.Dtos;
 using ps40165_Main.Services;
 
 namespace ps40165_Main.Controllers;
@@ -8,11 +10,11 @@ namespace ps40165_Main.Controllers;
 [ApiController]
 public class CategoriesController : ControllerBase
 {
-    private readonly CategoryService _service;
+    private readonly CategoryService _category;
 
-    public CategoriesController(CategoryService service)
+    public CategoriesController(CategoryService category)
     {
-        _service = service;
+        _category = category;
     }
 
     [HttpGet]
@@ -23,15 +25,28 @@ public class CategoriesController : ControllerBase
             return BadRequest(ModelState);
         }
 
-        var result = await _service.GetListCategories(request);
+        var result = await _category.GetListCategories(request);
 
-        if (result.IsSuccess)
+        if (result.IsSuccess && result is DbPagination<CategoryDto> query)
         {
-            return Ok(result);
+            return Created(HttpContext.Request.Path, new CentralResponse<List<CategoryDto>>
+            {
+                IsSuccess = result.IsSuccess,
+                Pagination = query.Metadata,
+                Data = query.Data
+            });
+        }
+        else if (!result.IsSuccess && result is DbResponse response)
+        {
+            return BadRequest(new CentralResponse
+            {
+                IsSuccess = !result.IsSuccess,
+                Error = new Error(response.Error.Type, response.Error.Detail)
+            });
         }
         else
         {
-            return NotFound(result);
+            return BadRequest(result);
         }
     }
 
@@ -43,15 +58,27 @@ public class CategoriesController : ControllerBase
             return BadRequest();
         }
 
-        var result = await _service.GetCategoryById(id);
+        var result = await _category.GetCategoryById(id);
 
-        if (result.IsSuccess)
+        if (result.IsSuccess && result is DbQuery<CategoryDto> query)
         {
-            return Ok(result);
+            return Created(HttpContext.Request.Path, new CentralResponse<CategoryDto>
+            {
+                IsSuccess = result.IsSuccess,
+                Data = query.Data
+            });
+        }
+        else if (!result.IsSuccess && result is DbResponse response)
+        {
+            return BadRequest(new CentralResponse
+            {
+                IsSuccess = !result.IsSuccess,
+                Error = new Error(response.Error.Type, response.Error.Detail)
+            });
         }
         else
         {
-            return NotFound(result);
+            return BadRequest(result);
         }
     }
 
@@ -63,11 +90,22 @@ public class CategoriesController : ControllerBase
             return BadRequest(ModelState);
         }
 
-        var result = await _service.AddCategory(request);
+        var result = await _category.AddCategory(request);
 
-        if (result.IsSuccess)
+        if (result.IsSuccess && result is DbResponse)
         {
-            return Created(HttpContext.Request.Path, result);
+            return Created(HttpContext.Request.Path, new CentralResponse
+            {
+                IsSuccess = result.IsSuccess
+            });
+        }
+        else if (!result.IsSuccess && result is DbResponse failure)
+        {
+            return BadRequest(new CentralResponse
+            {
+                IsSuccess = !result.IsSuccess,
+                Error = new Error(failure.Error.Type, failure.Error.Detail)
+            });
         }
         else
         {
@@ -83,7 +121,7 @@ public class CategoriesController : ControllerBase
             return BadRequest(ModelState);
         }
 
-        var result = await _service.EditCategory(id, request);
+        var result = await _category.EditCategory(id, request);
 
         if (result.IsSuccess)
         {

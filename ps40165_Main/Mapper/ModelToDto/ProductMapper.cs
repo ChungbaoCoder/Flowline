@@ -7,7 +7,7 @@ public class ProductMapper : IMapper<Product, ProductDto>
 {
     public ProductDto Map(Product src)
     {
-        return new ProductDto 
+        return new ProductDto
         {
             ProductId = src.Id,
             SKU = src.SKU,

@@ -14,14 +14,14 @@ public class OrderMapper : IMapper<Order, OrderDto>
             OrderDate = src.OrderDate,
             Status = src.Status,
             Completed = src.Completed,
-            Items = src.OrderItems.Select(oi => new OrderItemDto 
-                { 
-                    ProductId = oi.ProductId,
-                    SKU = oi.SKU,
-                    ImagePath = oi.ImagePath,
-                    Quantity = oi.Quantity,
-                    Price = oi.Price
-                })
+            Items = src.OrderItems.Select(oi => new OrderItemDto
+            {
+                ProductId = oi.ProductId,
+                SKU = oi.SKU,
+                ImagePath = oi.ImagePath,
+                Quantity = oi.Quantity,
+                Price = oi.Price
+            })
             .ToList(),
         };
     }

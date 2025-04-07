@@ -13,7 +13,7 @@ public class Order : BaseEntity
 
     public bool Completed { get; set; }
 
-    public decimal Total {  get; set; }
+    public decimal Total { get; set; }
 
     //Tracking Object Date
     public DateTime CreatedOnUtc { get; set; }

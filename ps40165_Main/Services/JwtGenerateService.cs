@@ -1,8 +1,8 @@
-﻿using System.Security.Claims;
-using Microsoft.IdentityModel.Tokens;
+﻿using System.IdentityModel.Tokens.Jwt;
+using System.Security.Claims;
 using System.Text;
+using Microsoft.IdentityModel.Tokens;
 using ps40165_Main.Models;
-using System.IdentityModel.Tokens.Jwt;
 
 namespace ps40165_Main.Services;
 

@@ -2,6 +2,7 @@
 
 public class LoginError : IError
 {
+    public string Type => "Login";
     public List<string> Detail { get; }
 
     public LoginError()

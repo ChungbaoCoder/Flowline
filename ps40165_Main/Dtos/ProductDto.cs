@@ -4,6 +4,8 @@ public class ProductDto
 {
     public int ProductId { get; set; }
 
+    public string? SKU { get; set; }
+
     public required string Name { get; set; }
 
     public string Description { get; set; } = string.Empty;
@@ -14,7 +16,9 @@ public class ProductDto
 
     public decimal Price { get; set; }
 
-    public bool Active { get; set; }
-
     public bool DisableBuyButton { get; set; }
+
+    public string CategoryName { get; set; } = string.Empty;
+
+    public List<string> ProductImages { get; set; } = new List<string>();
 }

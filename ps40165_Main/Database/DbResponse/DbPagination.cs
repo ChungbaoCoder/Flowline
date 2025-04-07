@@ -1,8 +1,8 @@
 ﻿namespace ps40165_Main.Database.DbResponse;
 
-public class DbPagination<T> : IDbResponse
+public class DbPagination<TDto> : IDbResponse
 {
-    private DbPagination(bool isSuccess, PaginationMetadata metadata, List<T> data)
+    private DbPagination(bool isSuccess, PaginationMetadata metadata, List<TDto> data)
     {
         if (!isSuccess && metadata == null)
         {
@@ -18,9 +18,9 @@ public class DbPagination<T> : IDbResponse
 
     public PaginationMetadata Metadata { get; }
 
-    public List<T> Data { get; }
+    public List<TDto> Data { get; }
 
-    public static DbPagination<T> GiveBack(PaginationMetadata metadata, List<T> data) => new DbPagination<T>(true, metadata, data);
+    public static DbPagination<TDto> GiveBack(PaginationMetadata metadata, List<TDto> data) => new DbPagination<TDto>(true, metadata, data);
 }
 
 public class PaginationMetadata

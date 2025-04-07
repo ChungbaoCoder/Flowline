@@ -1,4 +1,5 @@
-﻿using Microsoft.EntityFrameworkCore;
+﻿using Microsoft.AspNetCore.Identity;
+using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Metadata.Builders;
 
 namespace ps40165_Main.Models;
@@ -12,8 +13,6 @@ public class Account : BaseEntity
     public string? PhoneNumber { get; set; }
 
     public string? PasswordHash { get; set; }
-
-    public string? PasswordSalt { get; set; }
 
     public string? GoogleUserId { get; set; }
 
@@ -53,9 +52,6 @@ public class AccountMap : IEntityTypeConfiguration<Account>
             .HasColumnType("varchar(20)");
 
         builder.Property(a => a.PasswordHash)
-            .IsRequired(false);
-
-        builder.Property(a => a.PasswordSalt)
             .IsRequired(false);
 
         builder.Property(a => a.GoogleUserId)

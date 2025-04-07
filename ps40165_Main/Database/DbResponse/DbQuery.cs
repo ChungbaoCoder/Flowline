@@ -1,8 +1,8 @@
 ﻿namespace ps40165_Main.Database.DbResponse;
 
-public class DbQuery<T> : IDbResponse
+public class DbQuery<TDto> : IDbResponse
 {
-    private DbQuery(bool isSuccess, T data)
+    private DbQuery(bool isSuccess, TDto data)
     {
         if (!isSuccess && data == null)
         {
@@ -15,7 +15,7 @@ public class DbQuery<T> : IDbResponse
 
     public bool IsSuccess { get; }
 
-    public T Data { get; }
+    public TDto Data { get; }
 
-    public static DbQuery<T> GiveBack(T dto) => new DbQuery<T>(true, dto);
+    public static DbQuery<TDto> GiveBack(TDto data) => new DbQuery<TDto>(true, data);
 }

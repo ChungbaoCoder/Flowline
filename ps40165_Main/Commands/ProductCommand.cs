@@ -3,6 +3,8 @@
 public class AddProductCommand
 {
     public int CategoryId { get; set; }
+    
+    public string? SKU { get; set; }
 
     public required string Name { get; set; }
 
@@ -18,6 +20,8 @@ public class AddProductCommand
 public class EditProductCommand
 {
     public int CategoryId { get; set; }
+    
+    public string? SKU { get; set; }
 
     public required string Name { get; set; }
 

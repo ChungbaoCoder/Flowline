@@ -4,6 +4,7 @@ using ps40165_Main.Database;
 using ps40165_Main.Database.DbResponse;
 using ps40165_Main.Database.DbResponse.ErrorDoc;
 using ps40165_Main.Dtos;
+using ps40165_Main.Mapper.ModelToDto;
 using ps40165_Main.Models;
 
 namespace ps40165_Main.Services;
@@ -23,14 +24,15 @@ public class CategoryService
         int pageSize = request.PageSize < 1 ? 10 : request.PageSize;
 
         var categories = await _context.Categories
+            .AsNoTracking()
             .Skip((pageNumber - 1) * pageSize)
             .Take(pageSize)
-            .Select(c => new CategoryDto
+            .Select(c => new Category
                 {
-                    CategoryId = c.Id,
+                    Id = c.Id,
                     Name = c.Name,
-                    Description = c.Description,
-                    Active = c.Active
+                    Alias = c.Alias,
+                    Description = c.Description
                 })
             .ToListAsync();
 
@@ -50,7 +52,12 @@ public class CategoryService
             TotalPages = totalPages
         };
 
-        return DbPagination<CategoryDto>.GiveBack(meta, categories);
+        List<CategoryDto> data = new List<CategoryDto>();
+
+        foreach (var category in categories)
+            data.Add(new CategoryMapper().Map(category));
+
+        return DbPagination<CategoryDto>.GiveBack(meta, data);
     }
 
     public async Task<IDbResponse> GetCategoryById(int categoryId)
@@ -83,31 +90,11 @@ public class CategoryService
             return DbResponse.Failure(new CategoryError().NotFound());
 
         found.Name = request.Name;
+        found.Alias = request.Alias;
         found.Description = request.Description;
 
         await _context.SaveChangesAsync();
-        return DbResponse.Success;
-    }
 
-    public async Task<IDbResponse> MakeActive(int categoryId)
-    {
-        var found = await _context.Categories.FindAsync(categoryId);
-
-        if (found == null)
-            return DbResponse.Failure(new CategoryError().NotFound());
-
-        await _context.SaveChangesAsync();
-        return DbResponse.Success;
-    }
-
-    public async Task<IDbResponse> MakeInactive(int categoryId)
-    {
-        var found = await _context.Categories.FindAsync(categoryId);
-
-        if (found == null)
-            return DbResponse.Failure(new CategoryError().NotFound());
-
-        await _context.SaveChangesAsync();
         return DbResponse.Success;
     }
 
@@ -121,6 +108,7 @@ public class CategoryService
         _context.Categories.Remove(found);
 
         await _context.SaveChangesAsync();
+
         return DbResponse.Success;
     }
 }

@@ -1,5 +1,6 @@
 ﻿using Microsoft.EntityFrameworkCore.Metadata.Builders;
 using Microsoft.EntityFrameworkCore;
+using Microsoft.AspNetCore.Identity;
 
 namespace ps40165_Main.Models;
 
@@ -15,11 +16,6 @@ public class ProductImage : BaseEntity
 
     public int? Width { get; set; }
 
-    //Tracking Object Date
-    public DateTime CreatedOnUtc { get; set; }
-
-    public DateTime UpdatedOnUtc { get; set; }
-
     //RelationShip
     public Product Product { get; set; }
 }
@@ -34,13 +30,5 @@ public class ProductImageMap : IEntityTypeConfiguration<ProductImage>
             .IsRequired(false)
             .HasMaxLength(256)
             .HasColumnType("nvarchar(256)");
-
-        builder.Property(pi => pi.CreatedOnUtc)
-            .HasDefaultValueSql("GETUTCDATE()")
-            .ValueGeneratedOnAdd();
-
-        builder.Property(pi => pi.UpdatedOnUtc)
-            .HasDefaultValueSql("GETUTCDATE()")
-            .ValueGeneratedOnAddOrUpdate();
     }
 }

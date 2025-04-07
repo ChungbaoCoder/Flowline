@@ -6,6 +6,8 @@ public class CategoryDto
 
     public required string Name { get; set; }
 
+    public string Alias { get; set; } = string.Empty;
+
     public string Description { get; set; } = string.Empty;
 
     public bool Active { get; set; }

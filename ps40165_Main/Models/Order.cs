@@ -48,6 +48,10 @@ public class OrderMap : IEntityTypeConfiguration<Order>
             .HasMaxLength(20)
             .HasColumnType("varchar(20)");
 
+        builder.Property(o => o.OrderDate)
+            .HasDefaultValueSql("GETUTCDATE()")
+            .ValueGeneratedOnAdd();
+
         builder.Property(o => o.CreatedOnUtc)
             .HasDefaultValueSql("GETUTCDATE()")
             .ValueGeneratedOnAdd();

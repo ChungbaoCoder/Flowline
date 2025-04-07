@@ -2,16 +2,16 @@
 
 public class CategoryError : IError
 {
-    public List<string> Errors { get; }
+    public List<string> Detail { get; }
 
     public CategoryError()
     {
-        Errors = new List<string>();
+        Detail = new List<string>();
     }
 
     public CategoryError NotFound()
     {
-        Errors.Add("Không tìm thấy loại sản phẩm");
+        Detail.Add("Không tìm thấy loại sản phẩm");
         return this;
     }
 }

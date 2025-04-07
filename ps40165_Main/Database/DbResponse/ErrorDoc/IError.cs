@@ -2,5 +2,5 @@
 
 public interface IError
 {
-    public List<string> Errors { get; }
+    public List<string> Detail { get; }
 }

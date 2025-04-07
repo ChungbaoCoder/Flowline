@@ -2,16 +2,16 @@
 
 public class ProductError : IError
 {
-    public List<string> Errors { get; }
+    public List<string> Detail { get; }
 
     public ProductError()
     {
-        Errors = new List<string>();
+        Detail = new List<string>();
     }
 
     public ProductError NotFound()
     {
-        Errors.Add("Không tìm thấy sản phẩm");
+        Detail.Add("Không tìm thấy sản phẩm");
         return this;
     }
 }

@@ -2,17 +2,17 @@
 
 public class ProductImageError : IError
 {
-    public List<string> Errors { get; }
+    public List<string> Detail { get; }
 
 
     public ProductImageError()
     {
-        Errors = new List<string>();
+        Detail = new List<string>();
     }
 
     public ProductImageError NotFound()
     {
-        Errors.Add("Không tìm thấy hình ảnh sản phẩm");
+        Detail.Add("Không tìm thấy hình ảnh sản phẩm");
         return this;
     }
 }

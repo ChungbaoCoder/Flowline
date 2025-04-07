@@ -2,16 +2,16 @@
 
 public class OrderError : IError
 {
-    public List<string> Errors { get; }
+    public List<string> Detail { get; }
 
     public OrderError()
     {
-        Errors = new List<string>();
+        Detail = new List<string>();
     }
 
     public OrderError NotFound()
     {
-        Errors.Add("Không tìm thấy hóa đơn");
+        Detail.Add("Không tìm thấy hóa đơn");
         return this;
     }
 }

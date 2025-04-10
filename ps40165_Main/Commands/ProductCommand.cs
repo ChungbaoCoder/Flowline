@@ -15,6 +15,8 @@ public class AddProductCommand
     public int StockLevel { get; set; }
 
     public decimal Price { get; set; }
+
+    public bool DisableBuyButton { get; set; }
 }
 
 public class EditProductCommand
@@ -32,4 +34,6 @@ public class EditProductCommand
     public int StockLevel { get; set; }
 
     public decimal Price { get; set; }
+
+    public bool DisableBuyButton { get; set; }
 }

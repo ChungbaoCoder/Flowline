@@ -1,0 +1,107 @@
+﻿@page "/Products/Create"
+@layout StoreLayout
+@rendermode InteractiveServer
+
+@inject NavigationManager _navigation
+@inject IHttpClientFactory _client
+
+<div class="d-flex justify-content-between align-items-center">
+
+    <div class="default-link">
+        <a class="" href="#">⬅</a>
+
+        <h5 class="d-inline">Thêm loại sản phẩm</h5>
+    </div>
+
+    <div>
+        <button type="submit" form="create" class="btn btn-primary">✓ Lưu</button>
+        <button type="submit" form="create" class="btn btn-secondary">Lưu và chỉnh sửa thêm</button>
+    </div>
+
+</div>
+
+<div class="row gap-3 mt-3">
+
+    <aside class="col-2 border-end">
+        <ul class="list-unstyled default-link">
+
+            <li class="mt-2"><a href="">Thông tin</a></li>
+            <li class="mt-2"><a href="">Hình ảnh</a></li>
+
+        </ul>
+    </aside>
+
+    <main class="col-9">
+
+        <EditForm id="create" Model="@request" FormName="CreateProduct" OnValidSubmit="HandleValidSubmit" OnInvalidSubmit="HandleInvalidSubmit">
+            <DataAnnotationsValidator />
+            <ValidationSummary />
+
+            <div class="row mt-3">
+                <label class="col form-label" for="">SKU</label>
+                <InputText class="col form-control" @bind-Value="request.SKU" disabled></InputText>
+                <div class="col"></div>
+            </div>
+
+            <div class="row mt-3">
+                <label class="col form-label" for="">Tên sản phẩm</label>
+                <InputText class="col form-control" @bind-Value="request.Name"></InputText>
+                <div class="col"></div>
+            </div>
+
+            <div class="row mt-3">
+                <label class="col form-label" for="">Nội dung</label>
+                <InputTextArea class="col form-control" @bind-Value=@request.Description></InputTextArea>
+                <div class="col"></div>
+            </div>
+
+            <div class="row mt-3">
+                <label class="col form-label" for="">Nội dung dưới</label>
+                <InputTextArea class="col form-control" @bind-Value="@request.UnderDescription"></InputTextArea>
+                <div class="col"></div>
+            </div>
+
+            <div class="row mt-3">
+                <label class="col form-label" for="">Số lượng</label>
+                <InputNumber class="col form-control" @bind-Value="request.StockLevel"></InputNumber>
+                <div class="col"></div>
+            </div>
+
+            <div class="row mt-3">
+                <label class="col form-label" for="">Giá</label>
+                <InputNumber class="col form-control" @bind-Value="request.Price"></InputNumber>
+                <div class="col"></div>
+            </div>
+
+            <div class="row mt-3 form-check-reverse form-switch">
+                <div class="col-4">
+                    <label class="d-flex form-check-label">Chặn mua</label>
+                </div>
+                <div class="col-auto p-0">
+                    <InputCheckbox class="form-check-input" @bind-Value="request.DisableBuyButton"></InputCheckbox>
+                </div>
+            </div>
+
+        </EditForm>
+
+    </main>
+
+</div>
+
+@code {
+    private AddProductCommand request = new AddProductCommand();
+
+    private async Task HandleValidSubmit()
+    {
+        // ProductApi api = new ProductApi(_client.CreateClient("meta"));
+
+        // await api.AddProduct(request);
+
+        Console.WriteLine("Check");
+    }
+
+    private void HandleInvalidSubmit()
+    {
+        Console.WriteLine("Form is invalid.");
+    }
+}

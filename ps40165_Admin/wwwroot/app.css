@@ -42,9 +42,9 @@ h1:focus {
     color: white;
 }
 
-    .blazor-error-boundary::after {
-        content: "An error has occurred."
-    }
+.blazor-error-boundary::after {
+    content: "An error has occurred."
+}
 
 .darker-border-checkbox.form-check-input {
     border-color: #929292;
@@ -57,4 +57,33 @@ h1:focus {
 
 .form-floating > .form-control-plaintext:focus::placeholder, .form-floating > .form-control:focus::placeholder {
     text-align: start;
+}
+
+/* My custom css*/
+.default-link a {
+    text-decoration: none;
+    color: black;
+}
+
+.col-size-sm {
+    width: 30px;
+}
+
+.options-menu {
+    position: absolute;
+    background: white;
+    box-shadow: 0 4px 8px rgba(12, 6, 6, 0.1);
+    z-index: 1030;
+    right: 15px;
+    padding: 10px;
+    border-radius: 4px;
+    min-width: 100px;
+}
+
+.none {
+    display: none;
+}
+
+.show {
+    display: block;
 }

@@ -41,7 +41,7 @@ public class CategoryService
             return DbResponse.Failure(new CategoryError().NotFound());
         }
 
-        int totalCount = await _context.Products.CountAsync();
+        int totalCount = await _context.Categories.CountAsync();
         int totalPages = (int)Math.Ceiling(totalCount / (double)pageSize);
 
         PaginationMetadata meta = new PaginationMetadata

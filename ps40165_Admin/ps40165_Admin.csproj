@@ -6,4 +6,8 @@
     <ImplicitUsings>enable</ImplicitUsings>
   </PropertyGroup>
 
+  <ItemGroup>
+    <ProjectReference Include="..\ps40165_Main\ps40165_Main.csproj" />
+  </ItemGroup>
+
 </Project>

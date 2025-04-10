@@ -109,6 +109,7 @@ public class ProductService
             UnderDescription = request.UnderDescription,
             StockLevel = request.StockLevel,
             Price = request.Price,
+            DisableBuyButton = request.DisableBuyButton
         };
 
         await _context.Products.AddAsync(product);
@@ -131,6 +132,7 @@ public class ProductService
         found.UnderDescription = request.UnderDescription;
         found.StockLevel = request.StockLevel;
         found.Price = request.Price;
+        found.DisableBuyButton = request.DisableBuyButton;
 
         await _context.SaveChangesAsync();
 

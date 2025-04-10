@@ -18,7 +18,7 @@ public class AuthController : ControllerBase
     }
 
     [HttpPost]
-    public async Task<IActionResult> LoginAccountBy(LoginUserCommand request)
+    public async Task<IActionResult> LoginAccountBy([FromBody] LoginUserCommand request)
     {
         if (!ModelState.IsValid)
             return BadRequest(ModelState);

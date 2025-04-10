@@ -18,7 +18,7 @@ public class AccountController : ControllerBase
     }
 
     [HttpPost]
-    public async Task<IActionResult> RegisterAccount(RegisterUserCommand request)
+    public async Task<IActionResult> RegisterAccount([FromBody] RegisterUserCommand request)
     {
         if (!ModelState.IsValid)
             return BadRequest(ModelState);

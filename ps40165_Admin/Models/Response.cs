@@ -1,15 +1,6 @@
-﻿using ps40165_Main.Database.DbResponse;
+﻿namespace ps40165_Admin.Models;
 
-namespace ps40165_Main.Controllers;
-
-public class CentralResponse
-{
-    public bool IsSuccess { get; set; }
-
-    public Error? Error { get; set; }
-}
-
-public class CentralResponse<T>
+public class Response<T>
 {
     public bool IsSuccess { get; set; }
 
@@ -32,3 +23,15 @@ public class Error
         Detail = detail;
     }
 }
+
+public class PaginationMetadata
+{
+    public int TotalCount { get; set; }
+
+    public int PageSize { get; set; }
+
+    public int CurrentPage { get; set; }
+
+    public int TotalPages { get; set; }
+}
+

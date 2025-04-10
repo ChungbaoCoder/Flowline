@@ -1,0 +1,46 @@
+﻿@page "/Login"
+@layout LoginLayout
+@rendermode InteractiveServer
+
+@inject NavigationManager _navigation
+@inject IHttpClientFactory _client
+
+<EditForm Model="request" FormName="LoginForm" OnValidSubmit="HandleValidSubmit" OnInvalidSubmit="HandleInvalidSubmit">
+    <DataAnnotationsValidator />
+    <ValidationSummary />
+
+    <div>
+        <label>Email</label><br />
+        <InputText class="form-text" @bind-Value="request.Email"></InputText>
+        <ValidationMessage For="@(() => request.Email)" />
+    </div>
+
+    <div>
+        <label>Mật khẩu</label><br />
+        <InputText class="form-text" @bind-Value="request.Password"></InputText>
+        <ValidationMessage For="@(() => request.Password)" />
+    </div>
+
+    <button type="submit" class="btn btn-primary">Đăng nhập</button>
+</EditForm>
+
+@code {
+    LoginUserCommand request = new LoginUserCommand();
+
+    Response<TokenDto> response = new Response<TokenDto>();
+
+    private async Task HandleValidSubmit()
+    {
+        AuthApi api = new AuthApi(_client.CreateClient("meta"));
+
+        response = await api.Login(request);
+
+        if (response.IsSuccess)
+            Console.WriteLine(response?.Data?.Token);
+    }
+
+    private void HandleInvalidSubmit()
+    {
+        Console.WriteLine("Form is invalid.");
+    }
+}

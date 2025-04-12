@@ -18,6 +18,53 @@ public class OrderService
         _context = context;
     }
 
+    public async Task<IDbResponse> GetListOrder(QueryPageCommand request)
+    {
+        int pageNumber = request.PageNumber < 1 ? 1 : request.PageNumber;
+        int pageSize = request.PageSize < 1 ? 10 : request.PageSize;
+
+        var orders = await _context.Orders
+            .AsNoTracking()
+            .Skip((pageNumber - 1) * pageSize)
+            .Take(pageSize)
+            .Include(o => o.Customer)
+            .Include(o => o.OrderItems)
+            .Select(o => new Order
+            {
+                Id = o.Id,
+                AccountId = o.AccountId,
+                OrderDate = o.OrderDate,
+                Status = o.Status,
+                Completed = o.Completed,
+                Total = o.Total,
+                OrderItems = o.OrderItems
+            })
+            .ToListAsync();
+
+        if (orders.Count < 1)
+        {
+            return DbResponse.Failure(new ProductError().NotFound());
+        }
+
+        int totalCount = await _context.Products.CountAsync();
+        int totalPages = (int)Math.Ceiling(totalCount / (double)pageSize);
+
+        PaginationMetadata meta = new PaginationMetadata
+        {
+            CurrentPage = pageNumber,
+            PageSize = pageSize,
+            TotalCount = totalCount,
+            TotalPages = totalPages
+        };
+
+        List<OrderDto> data = new List<OrderDto>();
+
+        foreach (Order order in orders)
+            data.Add(new OrderMapper().Map(order));
+
+        return DbPagination<OrderDto>.GiveBack(meta, data);
+    }
+
     public async Task<IDbResponse> MakeOrder(MakeOrderCommand request)
     {
         List<int> productIds = request.Items.Select(c => c.ProductId).Distinct().ToList();

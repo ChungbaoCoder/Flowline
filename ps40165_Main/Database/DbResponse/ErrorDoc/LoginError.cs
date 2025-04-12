@@ -22,6 +22,12 @@ public class LoginError : IError
         return this;
     }
 
+    public LoginError RoleInvalid()
+    {
+        Detail.Add("Chức vụ không trùng với người đang đăng nhập");
+        return this;
+    }
+
     public LoginError NotFound()
     {
         Detail.Add("Người dùng không tìm thấy");

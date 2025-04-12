@@ -17,13 +17,13 @@ public class AccountController : ControllerBase
         _account = account;
     }
 
-    [HttpPost]
-    public async Task<IActionResult> RegisterAccount([FromBody] RegisterUserCommand request)
+    [HttpPost("user")]
+    public async Task<IActionResult> RegisterUserAccount([FromBody] RegisterUserCommand request)
     {
         if (!ModelState.IsValid)
             return BadRequest(ModelState);
 
-        var result = await _account.Register(request);
+        var result = await _account.RegisterUser(request);
 
         if (result.IsSuccess && result is DbQuery<AccountDto> query)
         {
@@ -39,6 +39,62 @@ public class AccountController : ControllerBase
             {
                 IsSuccess = true,
                 Error = new Error(response.Error.Type, response.Error.Detail)
+            });
+        }
+        else
+        {
+            return BadRequest(result);
+        }
+    }
+
+    [HttpPost("admin")]
+    public async Task<IActionResult> RegisterAdminAccount([FromBody] RegisterAdminCommand request)
+    {
+        if (!ModelState.IsValid)
+            return BadRequest(ModelState);
+
+        var result = await _account.RegisterAdminAsync(request);
+
+        if (result.IsSuccess)
+        {
+            return Created(HttpContext.Request.Path, new CentralResponse
+            {
+                IsSuccess = true
+            });
+        }
+        else if (!result.IsSuccess)
+        {
+            return BadRequest(new CentralResponse
+            {
+                IsSuccess = true,
+            });
+        }
+        else
+        {
+            return BadRequest(result);
+        }
+    }
+
+    [HttpPost("moderator")]
+    public async Task<IActionResult> RegisterModeratorAccount([FromBody] RegisterModeratorCommand request)
+    {
+        if (!ModelState.IsValid)
+            return BadRequest(ModelState);
+
+        var result = await _account.RegisterModeratorAsync(request);
+
+        if (result.IsSuccess)
+        {
+            return Created(HttpContext.Request.Path, new CentralResponse
+            {
+                IsSuccess = true
+            });
+        }
+        else if (!result.IsSuccess)
+        {
+            return BadRequest(new CentralResponse
+            {
+                IsSuccess = true,
             });
         }
         else

@@ -1,6 +1,7 @@
 using System.Text;
 using System.Text.Json.Serialization;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
+using Microsoft.AspNetCore.Identity;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.IdentityModel.Tokens;
 using ps40165_Main.Database;
@@ -14,6 +15,10 @@ builder.Services.AddDbContext<AppDbContext>(o =>
 {
     o.UseSqlServer(builder.Configuration.GetConnectionString("Database"));
 });
+
+builder.Services.AddIdentity<IdentityUser, IdentityRole>()
+    .AddEntityFrameworkStores<AppDbContext>()
+    .AddDefaultTokenProviders();
 
 builder.Services.AddScoped<CategoryService>();
 builder.Services.AddScoped<ProductService>();
@@ -30,7 +35,6 @@ builder.Services.AddControllers().AddJsonOptions(options =>
     options.JsonSerializerOptions.DefaultIgnoreCondition = JsonIgnoreCondition.WhenWritingNull;
 });
 
-// Learn more about configuring OpenAPI at https://aka.ms/aspnet/openapi
 builder.Services.AddOpenApi();
 
 builder.Services.AddCors(options =>
@@ -45,30 +49,41 @@ builder.Services.AddCors(options =>
 
     options.AddPolicy("AllowSpecificOrigin", policy =>
     {
-        policy.WithOrigins("https://localhost:7238") // Another specific origin
+        policy.WithOrigins("https://localhost:7238")
                .WithMethods("GET", "POST", "PUT", "DELETE")
                .WithHeaders("Content-Type", "Authorization");
     });
 });
 
-builder.Services.AddAuthentication(JwtBearerDefaults.AuthenticationScheme)
-        .AddJwtBearer(options =>
+builder.Services.AddAuthentication(options =>
+{
+    options.DefaultAuthenticateScheme = JwtBearerDefaults.AuthenticationScheme;
+    options.DefaultChallengeScheme = JwtBearerDefaults.AuthenticationScheme;
+})
+    .AddJwtBearer(options =>
+    {
+        options.RequireHttpsMetadata = false;
+        options.SaveToken = true;
+        options.TokenValidationParameters = new TokenValidationParameters
         {
-            options.RequireHttpsMetadata = false;
-            options.SaveToken = true;
-            options.TokenValidationParameters = new TokenValidationParameters
-            {
-                ValidateIssuer = true,
-                ValidateAudience = true,
-                ValidateLifetime = true,
-                ValidateIssuerSigningKey = true,
-                ValidIssuer = builder.Configuration["Jwt:Issuer"],
-                ValidAudience = builder.Configuration["Jwt:Audience"],
-                IssuerSigningKey = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(builder.Configuration["Jwt:SecretKey"]))
-            };
-        });
+            ValidateIssuer = true,
+            ValidateAudience = true,
+            ValidateLifetime = true,
+            ValidateIssuerSigningKey = true,
+            ValidIssuer = builder.Configuration["Jwt:Issuer"],
+            ValidAudience = builder.Configuration["Jwt:Audience"],
+            IssuerSigningKey = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(builder.Configuration["Jwt:SecretKey"]))
+        };
+    });
 
 var app = builder.Build();
+
+using (var scope = app.Services.CreateScope())
+{
+    var service = scope.ServiceProvider;
+    await SeedDb.SeedRolesAsync(service);
+    await SeedDb.SeedAdminUserAsync(service);
+}
 
 // Configure the HTTP request pipeline.
 if (app.Environment.IsDevelopment())
@@ -81,6 +96,7 @@ app.UseHttpsRedirection();
 
 app.UseCors();
 
+app.UseAuthentication();
 app.UseAuthorization();
 
 app.MapControllers();

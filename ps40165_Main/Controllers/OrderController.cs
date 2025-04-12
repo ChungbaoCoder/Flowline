@@ -2,6 +2,7 @@
 using ps40165_Main.Commands;
 using ps40165_Main.Database.DbResponse;
 using ps40165_Main.Dtos;
+using ps40165_Main.Models;
 using ps40165_Main.Services;
 
 namespace ps40165_Main.Controllers;
@@ -15,6 +16,39 @@ public class OrderController : ControllerBase
     public OrderController(OrderService order)
     {
         _order = order;
+    }
+
+    [HttpGet]
+    public async Task<IActionResult> GetOrders ([FromQuery] QueryPageCommand request)
+    {
+        if (!ModelState.IsValid)
+        {
+            return BadRequest(ModelState);
+        }
+
+        var result = await _order.GetListOrder(request);
+
+        if (result.IsSuccess && result is DbPagination<OrderDto> query)
+        {
+            return Created(HttpContext.Request.Path, new CentralResponse<List<OrderDto>>
+            {
+                IsSuccess = result.IsSuccess,
+                Pagination = query.Metadata,
+                Data = query.Data
+            });
+        }
+        else if (!result.IsSuccess && result is DbResponse response)
+        {
+            return BadRequest(new CentralResponse
+            {
+                IsSuccess = !result.IsSuccess,
+                Error = new Error(response.Error.Type, response.Error.Detail)
+            });
+        }
+        else
+        {
+            return BadRequest(result);
+        }
     }
 
     [HttpPost]

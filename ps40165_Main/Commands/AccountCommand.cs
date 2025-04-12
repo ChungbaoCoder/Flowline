@@ -11,9 +11,32 @@ public class RegisterUserCommand
     public string? PhoneNumber { get; set; }
 }
 
+public class RegisterAdminCommand
+{
+    public required string Email { get; set; }
+
+    public required string Password { get; set; }
+}
+
+public class RegisterModeratorCommand
+{
+    public required string Email { get; set; }
+
+    public required string Password { get; set; }
+}
+
 public class LoginUserCommand
 {
     public string Email { get; set; }
 
     public string Password { get; set; }
+}
+
+public class LoginEmployeeCommand
+{
+    public required string Email { get; set; }
+
+    public required string Password { get; set; }
+
+    public required string Role { get; set; }
 }

@@ -8,7 +8,7 @@ public static class CorsSetUp
         {
             options.AddDefaultPolicy(policy =>
             {
-                policy.WithOrigins("https://localhost:7238")
+                policy.WithOrigins("https://localhost:7139", "https://localhost:7273")
                        .AllowAnyMethod()
                        .AllowAnyHeader()
                        .AllowCredentials();
@@ -16,8 +16,8 @@ public static class CorsSetUp
 
             options.AddPolicy("AllowSpecificOrigin", policy =>
             {
-                policy.WithOrigins("https://localhost:7238")
-                       .WithMethods("GET", "POST", "PUT", "DELETE")
+                policy.WithOrigins("https://localhost:7139", "https://localhost:7273")
+                       .WithMethods("GET", "POST", "PUT", "PATCH", "DELETE")
                        .WithHeaders("Content-Type", "Authorization");
             });
         });

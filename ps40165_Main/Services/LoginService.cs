@@ -24,7 +24,7 @@ public class LoginService
 
     public async Task<IDbResponse<TokenDto>> LoginUser(LoginUserCommand request)
     {
-        Account? account = await _service.GetUserEmail(request.Email);
+        Account? account = await _service.GetUserByEmail(request.Email);
 
         if (account is null)
             return DbResponse<TokenDto>.Failure(new LoginError().NotFound());
@@ -53,9 +53,6 @@ public class LoginService
         }
 
         var roles = await _userManager.GetRolesAsync(user);
-
-        if (!roles.Contains(request.Role))
-            return DbResponse<TokenDto>.Failure(new LoginError().RoleInvalid());
 
         TokenDto token = new TokenDto();
         token.Token = _jwt.GenerateEmployeeToken(user, roles);

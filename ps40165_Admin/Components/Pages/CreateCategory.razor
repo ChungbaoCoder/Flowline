@@ -2,6 +2,9 @@
 @layout StoreLayout
 @rendermode InteractiveServer
 
+@inject NavigationManager _navigation
+@inject IHttpClientFactory _client
+
 <div class="d-flex justify-content-between align-items-center">
 
     <div class="default-link">
@@ -63,9 +66,9 @@
 
     private async Task HandleValidSubmit()
     {
-        // ProductApi api = new ProductApi(_client.CreateClient("meta"));
+        CategoryApi api = new CategoryApi(_client.CreateClient("meta"));
 
-        // await api.AddProduct(request);
+        await api.AddCategory(request);
 
         Console.WriteLine("Check");
     }

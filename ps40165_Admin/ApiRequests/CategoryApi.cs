@@ -1,6 +1,7 @@
 ﻿using System.Text.Json;
 using ps40165_Admin.Models;
 using ps40165_Admin.Commands;
+using System.Text;
 
 namespace ps40165_Admin.ApiRequests;
 
@@ -40,7 +41,7 @@ public class CategoryApi
     {
         string jsonString = JsonSerializer.Serialize(request);
 
-        HttpContent content = new StringContent(jsonString, System.Text.Encoding.UTF8, "application/json");
+        HttpContent content = new StringContent(jsonString, Encoding.UTF8, "application/json");
 
         HttpResponseMessage response = await _client.PostAsync("Categories", content);
 

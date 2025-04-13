@@ -1,11 +1,12 @@
-﻿using Microsoft.AspNetCore.Mvc;
+﻿using Microsoft.AspNetCore.Authorization;
+using Microsoft.AspNetCore.Mvc;
 using ps40165_Main.Commands;
-using ps40165_Main.Database.DbResponse;
 using ps40165_Main.Dtos;
 using ps40165_Main.Services;
 
 namespace ps40165_Main.Controllers;
 
+[Authorize]
 [Route("api/[controller]")]
 [ApiController]
 public class OrderController : ControllerBase
@@ -17,6 +18,7 @@ public class OrderController : ControllerBase
         _order = order;
     }
 
+    [AllowAnonymous]
     [HttpGet]
     public async Task<IActionResult> GetOrders ([FromQuery] QueryPageCommand request)
     {
@@ -29,7 +31,7 @@ public class OrderController : ControllerBase
 
         if (result.IsSuccess)
         {
-            return Created(HttpContext.Request.Path, new CentralResponse<PaginatedList<OrderDto>>
+            return Ok(new CentralResponse<PaginatedList<OrderDto>>
             {
                 IsSuccess = result.IsSuccess,
                 Data = result.Data

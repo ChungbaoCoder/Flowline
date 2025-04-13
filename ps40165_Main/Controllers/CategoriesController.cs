@@ -1,11 +1,13 @@
-﻿using Microsoft.AspNetCore.Mvc;
+﻿using Microsoft.AspNetCore.Authentication.JwtBearer;
+using Microsoft.AspNetCore.Authorization;
+using Microsoft.AspNetCore.Mvc;
 using ps40165_Main.Commands;
-using ps40165_Main.Database.DbResponse;
 using ps40165_Main.Dtos;
 using ps40165_Main.Services;
 
 namespace ps40165_Main.Controllers;
 
+[Authorize(AuthenticationSchemes = JwtBearerDefaults.AuthenticationScheme)]
 [Route("api/[controller]")]
 [ApiController]
 public class CategoriesController : ControllerBase
@@ -17,6 +19,7 @@ public class CategoriesController : ControllerBase
         _category = category;
     }
 
+    [AllowAnonymous]
     [HttpGet]
     public async Task<IActionResult> GetCategories([FromQuery] QueryPageCommand request)
     {
@@ -29,7 +32,7 @@ public class CategoriesController : ControllerBase
 
         if (result.IsSuccess)
         {
-            return Created(HttpContext.Request.Path, new CentralResponse<PaginatedList<CategoryDto>>
+            return Ok(new CentralResponse<PaginatedList<CategoryDto>>
             {
                 IsSuccess = result.IsSuccess,
                 Data = result.Data
@@ -49,6 +52,7 @@ public class CategoriesController : ControllerBase
         }
     }
 
+    [AllowAnonymous]
     [HttpGet("{id}")]
     public async Task<IActionResult> GetCategoryById(int id)
     {
@@ -61,7 +65,7 @@ public class CategoriesController : ControllerBase
 
         if (result.IsSuccess)
         {
-            return Created(HttpContext.Request.Path, new CentralResponse<CategoryDto>
+            return Ok(new CentralResponse<CategoryDto>
             {
                 IsSuccess = result.IsSuccess,
                 Data = result.Data
@@ -125,7 +129,7 @@ public class CategoriesController : ControllerBase
 
         if (result.IsSuccess)
         {
-            return Created(HttpContext.Request.Path, new CentralResponse<CategoryDto>
+            return Ok(new CentralResponse<CategoryDto>
             {
                 IsSuccess = result.IsSuccess,
                 Data = result.Data
@@ -157,7 +161,7 @@ public class CategoriesController : ControllerBase
 
         if (result.IsSuccess)
         {
-            return Created(HttpContext.Request.Path, new CentralResponse<string>
+            return Ok(new CentralResponse<string>
             {
                 IsSuccess = result.IsSuccess,
                 Data = result.Data

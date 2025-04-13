@@ -1,4 +1,10 @@
 ﻿@page "/"
+@inject NavigationManager Navigation
 
-<PageTitle>Dash Board</PageTitle>
+@code {
+    protected override void OnInitialized()
+    {
+        Navigation.NavigateTo("/dashboard", true);
+    }
+}
 

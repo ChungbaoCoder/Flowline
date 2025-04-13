@@ -93,9 +93,9 @@
 
     private async Task HandleValidSubmit()
     {
-        // ProductApi api = new ProductApi(_client.CreateClient("meta"));
+        ProductApi api = new ProductApi(_client.CreateClient("meta"));
 
-        // await api.AddProduct(request);
+        await api.AddProduct(request);
 
         Console.WriteLine("Check");
     }

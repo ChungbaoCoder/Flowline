@@ -1,46 +1,80 @@
-﻿@page "/Login"
+﻿@page "/Account/Login"
 @layout LoginLayout
 @rendermode InteractiveServer
 
 @inject NavigationManager _navigation
 @inject IHttpClientFactory _client
+@inject ProtectedLocalStorage _storage
 
-<EditForm Model="request" FormName="LoginForm" OnValidSubmit="HandleValidSubmit" OnInvalidSubmit="HandleInvalidSubmit">
-    <DataAnnotationsValidator />
-    <ValidationSummary />
+@if (showError)
+{
+    <p class="text-bg-danger">Đăng nhập không thành công</p>
+}
+
+<EditForm Model="request" FormName="LoginForm" OnValidSubmit="HandleValidSubmit">
+
+    <h4 class="text-center">Đăng nhập tài khoản</h4>
 
     <div>
-        <label>Email</label><br />
-        <InputText class="form-text" @bind-Value="request.Email"></InputText>
+        <label class="form-label">Email</label><br />
+        <InputText class="w-75 form-text" @bind-Value="request.Email"></InputText>
         <ValidationMessage For="@(() => request.Email)" />
     </div>
 
     <div>
-        <label>Mật khẩu</label><br />
-        <InputText class="form-text" @bind-Value="request.Password"></InputText>
+        <label class="form-label">Mật khẩu</label><br />
+        <div style="position: relative;">
+            <input type="@PasswordInputType" class="w-75 form-text" @bind="request.Password" />
+
+            <button type="button" @onclick="TogglePasswordVisibility" style="position: absolute; right: 40px; top: 50%; transform: translateY(-50%); background: none; border: none;">
+                <span>
+                    @(showPassword ? "👁️" : "👁️‍🗨️")
+                </span>
+            </button>
+        </div>
         <ValidationMessage For="@(() => request.Password)" />
     </div>
 
-    <button type="submit" class="btn btn-primary">Đăng nhập</button>
+    <div class="d-flex justify-content-center">
+        <button type="submit" class="btn btn-primary mt-3">Đăng nhập</button>
+    </div>
+
+    <input class="mt-2" type="checkbox" @bind="remember" />
+    <label>Remember me?</label>
+
 </EditForm>
 
 @code {
     LoginUserCommand request = new LoginUserCommand();
 
-    Response<TokenDto> response = new Response<TokenDto>();
+    private bool remember = false;
+
+    private bool showError = false;
+
+    private bool showPassword = false;
+
+    private string PasswordInputType => showPassword ? "text" : "password";
 
     private async Task HandleValidSubmit()
     {
+        showError = false;
+
         AuthApi api = new AuthApi(_client.CreateClient("meta"));
 
-        response = await api.Login(request);
+        var response = await api.Login(request);
 
         if (response.IsSuccess)
-            Console.WriteLine(response?.Data?.Token);
+        {
+            _navigation.NavigateTo("/");
+        }
+        else
+        {
+            showError = true;
+        }
     }
 
-    private void HandleInvalidSubmit()
+    private void TogglePasswordVisibility()
     {
-        Console.WriteLine("Form is invalid.");
+        showPassword = !showPassword;
     }
 }

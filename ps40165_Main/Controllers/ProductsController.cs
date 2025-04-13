@@ -1,11 +1,12 @@
-﻿using Microsoft.AspNetCore.Mvc;
+﻿using Microsoft.AspNetCore.Authorization;
+using Microsoft.AspNetCore.Mvc;
 using ps40165_Main.Commands;
-using ps40165_Main.Database.DbResponse;
 using ps40165_Main.Dtos;
 using ps40165_Main.Services;
 
 namespace ps40165_Main.Controllers;
 
+[Authorize]
 [Route("api/[controller]")]
 [ApiController]
 public class ProductsController : ControllerBase
@@ -17,6 +18,7 @@ public class ProductsController : ControllerBase
         _product = product;
     }
 
+    [AllowAnonymous]
     [HttpGet]
     public async Task<IActionResult> GetProducts([FromQuery] QueryPageCommand request)
     {
@@ -29,7 +31,7 @@ public class ProductsController : ControllerBase
 
         if (result.IsSuccess)
         {
-            return Created(HttpContext.Request.Path, new CentralResponse<PaginatedList<ProductDto>>
+            return Ok(new CentralResponse<PaginatedList<ProductDto>>
             {
                 IsSuccess = result.IsSuccess,
                 Data = result.Data
@@ -49,6 +51,7 @@ public class ProductsController : ControllerBase
         }
     }
 
+    [AllowAnonymous]
     [HttpGet("{id}")]
     public async Task<IActionResult> GetProductById(int id)
     {
@@ -61,7 +64,7 @@ public class ProductsController : ControllerBase
 
         if (result.IsSuccess)
         {
-            return Created(HttpContext.Request.Path, new CentralResponse<ProductDto>
+            return Ok(new CentralResponse<ProductDto>
             {
                 IsSuccess = result.IsSuccess,
                 Data = result.Data
@@ -125,7 +128,7 @@ public class ProductsController : ControllerBase
 
         if (result.IsSuccess)
         {
-            return Created(HttpContext.Request.Path, new CentralResponse<ProductDto>
+            return Ok(new CentralResponse<ProductDto>
             {
                 IsSuccess = result.IsSuccess,
                 Data = result.Data
@@ -155,7 +158,7 @@ public class ProductsController : ControllerBase
 
         if (result.IsSuccess)
         {
-            return Created(HttpContext.Request.Path, new CentralResponse<string>
+            return Ok(new CentralResponse<string>
             {
                 IsSuccess = result.IsSuccess,
                 Data = result.Data

@@ -23,6 +23,7 @@ public class JwtGenerateService
         var claims = new[]
         {
             new Claim(ClaimTypes.NameIdentifier, account.Id.ToString()),
+            new Claim(ClaimTypes.Name, account.Name),
             new Claim(ClaimTypes.Email, account.Email)
         };
 
@@ -46,6 +47,7 @@ public class JwtGenerateService
         {
             new Claim(ClaimTypes.NameIdentifier, user.Id),
             new Claim(ClaimTypes.Name, user.UserName),
+            new Claim(ClaimTypes.Email, user.Email)
         };
 
         claims.AddRange(roles.Select(role => new Claim(ClaimTypes.Role, role)));

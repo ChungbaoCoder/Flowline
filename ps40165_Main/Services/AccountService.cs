@@ -26,6 +26,11 @@ public class AccountService
 
     public async Task<IDbResponse<TokenDto>> RegisterUser(RegisterUserCommand request)
     {
+        if (await _context.Accounts.FirstOrDefaultAsync(a => a.Email == request.Email) is not null)
+        {
+            return DbResponse<TokenDto>.Failure(new RegisterError().AlreadyExist(request.Email));
+        }
+
         string hashedPassword = _hasher.Hash(request.Password);
 
         Account account = new Account
@@ -57,7 +62,7 @@ public class AccountService
 
     private async Task<IDbResponse<string>> RegisterWithRoleAsync(string email, string password, string role)
     {
-        if (await _userManager.FindByEmailAsync(email).ConfigureAwait(false) is not null)
+        if (await _userManager.FindByEmailAsync(email) is not null)
             return DbResponse<string>.Failure(new RegisterError().AlreadyExist(email));
 
         var user = new IdentityUser
@@ -76,7 +81,7 @@ public class AccountService
         return DbResponse<string>.GiveBack("Đăng kí tài khoản thành công, hãy đăng nhập bên cổng đăng nhập");
     }
 
-    public async Task<Account?> GetUserEmail(string email)
+    public async Task<Account?> GetUserByEmail(string email)
     {
         return await _context.Accounts.SingleOrDefaultAsync(a => a.Email == email);
     }

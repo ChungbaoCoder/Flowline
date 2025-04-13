@@ -1,11 +1,13 @@
-﻿using Microsoft.AspNetCore.Mvc;
+﻿using System.Security.Claims;
+using Microsoft.AspNetCore.Authorization;
+using Microsoft.AspNetCore.Mvc;
 using ps40165_Main.Commands;
-using ps40165_Main.Database.DbResponse;
 using ps40165_Main.Dtos;
 using ps40165_Main.Services;
 
 namespace ps40165_Main.Controllers;
 
+[Authorize]
 [Route("api/[controller]")]
 [ApiController]
 public class AuthController : ControllerBase
@@ -17,6 +19,17 @@ public class AuthController : ControllerBase
         _login = login;
     }
 
+    [HttpGet("whoami")]
+    public async Task<IActionResult> WhoAmI()
+    {
+        var userId = User.FindFirstValue(ClaimTypes.NameIdentifier);
+
+
+        return Ok();
+
+    }
+
+    [AllowAnonymous]
     [HttpPost("user")]
     public async Task<IActionResult> LoginUserAccount([FromBody] LoginUserCommand request)
     {
@@ -47,6 +60,7 @@ public class AuthController : ControllerBase
         }
     }
 
+    [AllowAnonymous]
     [HttpPost("employee")]
     public async Task<IActionResult> LoginEmployeeAccount([FromBody] LoginEmployeeCommand request)
     {

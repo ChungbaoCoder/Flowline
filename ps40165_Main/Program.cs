@@ -1,3 +1,5 @@
+using Microsoft.AspNetCore.OpenApi;
+using Microsoft.OpenApi.Models;
 using ps40165_Main.Database;
 using ps40165_Main.SetUp;
 using Scalar.AspNetCore;
@@ -12,7 +14,7 @@ builder.Services.ConfigureCors();
 builder.Services.ConfigureAuthentication(builder.Configuration);
 builder.Services.ConfigureEFIdentity();
 
-builder.Services.AddOpenApi();
+builder.Services.AddOpenApi("v1", options => { options.AddDocumentTransformer<BearerSecuritySchemeTransformer>(); });
 
 var app = builder.Build();
 
@@ -28,7 +30,10 @@ var app = builder.Build();
 if (app.Environment.IsDevelopment())
 {
     app.MapOpenApi();
-    app.MapScalarApiReference();
+    app.MapScalarApiReference(options =>
+    {
+        options.WithPreferredScheme("Bearer");
+    });
 }
 
 app.UseHttpsRedirection();

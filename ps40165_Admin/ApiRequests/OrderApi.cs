@@ -1,4 +1,5 @@
-﻿using System.Text.Json;
+﻿using System.Text;
+using System.Text.Json;
 using ps40165_Admin.Models;
 using ps40165_Main.Commands;
 
@@ -42,7 +43,7 @@ public class OrderApi
         {
             string jsonString = JsonSerializer.Serialize(request);
 
-            HttpContent content = new StringContent(jsonString, System.Text.Encoding.UTF8, "application/json");
+            HttpContent content = new StringContent(jsonString, Encoding.UTF8, "application/json");
 
             HttpResponseMessage response = await _client.PostAsync("Orders", content);
 

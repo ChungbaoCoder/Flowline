@@ -25,20 +25,20 @@ public class AccountController : ControllerBase
 
         var result = await _account.RegisterUser(request);
 
-        if (result.IsSuccess && result is DbQuery<AccountDto> query)
+        if (result.IsSuccess)
         {
-            return Created(HttpContext.Request.Path, new CentralResponse<AccountDto>
+            return Created(HttpContext.Request.Path, new CentralResponse<TokenDto>
             {
-                IsSuccess = true,
-                Data = query.Data
+                IsSuccess = result.IsSuccess,
+                Data = result.Data
             });
         }
-        else if (!result.IsSuccess && result is DbResponse response)
+        else if (!result.IsSuccess)
         {
-            return BadRequest(new CentralResponse<AccountDto>
+            return BadRequest(new CentralResponse<TokenDto>
             {
-                IsSuccess = true,
-                Error = new Error(response.Error.Type, response.Error.Detail)
+                IsSuccess = result.IsSuccess,
+                Error = new Error(result.Errors.Type, result.Errors.Detail)
             });
         }
         else
@@ -57,16 +57,17 @@ public class AccountController : ControllerBase
 
         if (result.IsSuccess)
         {
-            return Created(HttpContext.Request.Path, new CentralResponse
+            return Created(HttpContext.Request.Path, new CentralResponse<string>
             {
-                IsSuccess = true
+                IsSuccess = result.IsSuccess,
+                Data = result.Data
             });
         }
         else if (!result.IsSuccess)
         {
-            return BadRequest(new CentralResponse
+            return BadRequest(new CentralResponse<string>
             {
-                IsSuccess = true,
+                IsSuccess = result.IsSuccess,
             });
         }
         else
@@ -85,16 +86,17 @@ public class AccountController : ControllerBase
 
         if (result.IsSuccess)
         {
-            return Created(HttpContext.Request.Path, new CentralResponse
+            return Created(HttpContext.Request.Path, new CentralResponse<string>
             {
-                IsSuccess = true
+                IsSuccess = result.IsSuccess,
+                Data = result.Data
             });
         }
         else if (!result.IsSuccess)
         {
-            return BadRequest(new CentralResponse
+            return BadRequest(new CentralResponse<string>
             {
-                IsSuccess = true,
+                IsSuccess = result.IsSuccess,
             });
         }
         else

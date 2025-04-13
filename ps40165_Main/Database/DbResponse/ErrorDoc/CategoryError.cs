@@ -3,12 +3,7 @@
 public class CategoryError : IError
 {
     public string Type => "Category";
-    public List<string> Detail { get; }
-
-    public CategoryError()
-    {
-        Detail = new List<string>();
-    }
+    public List<string> Detail { get; } = new List<string>();
 
     public CategoryError NotFound()
     {

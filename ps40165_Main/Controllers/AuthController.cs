@@ -1,5 +1,4 @@
-﻿using Azure.Core;
-using Microsoft.AspNetCore.Mvc;
+﻿using Microsoft.AspNetCore.Mvc;
 using ps40165_Main.Commands;
 using ps40165_Main.Database.DbResponse;
 using ps40165_Main.Dtos;
@@ -26,20 +25,20 @@ public class AuthController : ControllerBase
 
         var result = await _login.LoginUser(request);
 
-        if (result.IsSuccess && result is DbQuery<TokenDto> query)
+        if (result.IsSuccess)
         {
             return Ok(new CentralResponse<TokenDto>
             {
-                IsSuccess = true,
-                Data = query.Data
+                IsSuccess = result.IsSuccess,
+                Data = result.Data
             });
         }
-        else if (!result.IsSuccess && result is DbResponse response)
+        else if (!result.IsSuccess)
         {
-            return BadRequest(new CentralResponse
+            return BadRequest(new CentralResponse<TokenDto>
             {
-                IsSuccess = true,
-                Error = new Error(response.Error.Type, response.Error.Detail)
+                IsSuccess = result.IsSuccess,
+                Error = new Error(result.Errors.Type, result.Errors.Detail)
             });
         }
         else
@@ -56,20 +55,20 @@ public class AuthController : ControllerBase
 
         var result = await _login.LoginEmployee(request);
 
-        if (result.IsSuccess && result is DbQuery<TokenDto> query)
+        if (result.IsSuccess)
         {
             return Ok(new CentralResponse<TokenDto>
             {
-                IsSuccess = true,
-                Data = query.Data
+                IsSuccess = result.IsSuccess,
+                Data = result.Data
             });
         }
-        else if (!result.IsSuccess && result is DbResponse response)
+        else if (!result.IsSuccess)
         {
-            return BadRequest(new CentralResponse
+            return BadRequest(new CentralResponse<TokenDto>
             {
-                IsSuccess = true,
-                Error = new Error(response.Error.Type, response.Error.Detail)
+                IsSuccess = result.IsSuccess,
+                Error = new Error(result.Errors.Type, result.Errors.Detail)
             });
         }
         else

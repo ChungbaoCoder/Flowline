@@ -2,9 +2,11 @@
 
 namespace ps40165_Main.Database.DbResponse;
 
-public interface IDbResponse
+public interface IDbResponse<T>
 {
     public bool IsSuccess { get; }
 
-    public IError Error { get; }
+    public IError Errors { get; }
+
+    public T Data { get; }
 }

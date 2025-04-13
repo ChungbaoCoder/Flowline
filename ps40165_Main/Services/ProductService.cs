@@ -18,13 +18,14 @@ public class ProductService
         _context = context;
     }
 
-    public async Task<IDbResponse> GetListProducts(QueryPageCommand request)
+    public async Task<IDbResponse<PaginatedList<ProductDto>>> GetListProducts(QueryPageCommand request)
     {
         int pageNumber = request.PageNumber < 1 ? 1 : request.PageNumber;
         int pageSize = request.PageSize < 1 ? 10 : request.PageSize;
 
         var products = await _context.Products
             .AsNoTracking()
+            .OrderBy(p => p.Id)
             .Skip((pageNumber - 1) * pageSize)
             .Take(pageSize)
             .Include(p => p.Category)
@@ -46,29 +47,23 @@ public class ProductService
 
         if (products.Count < 1)
         {
-            return DbResponse.Failure(new ProductError().NotFound());
+            return DbResponse<PaginatedList<ProductDto>>.Failure(new ProductError().NotFound());
         }
 
         int totalCount = await _context.Products.CountAsync();
         int totalPages = (int)Math.Ceiling(totalCount / (double)pageSize);
-
-        PaginationMetadata meta = new PaginationMetadata
-        {
-            CurrentPage = pageNumber,
-            PageSize = pageSize,
-            TotalCount = totalCount,
-            TotalPages = totalPages
-        };
 
         List<ProductDto> data = new List<ProductDto>();
 
         foreach (Product product in products)
             data.Add(new ProductMapper().Map(product));
 
-        return DbPagination<ProductDto>.GiveBack(meta, data);
+        PaginatedList<ProductDto> meta = new PaginatedList<ProductDto>(data, pageNumber, pageSize, totalCount);
+
+        return DbResponse<PaginatedList<ProductDto>>.GiveBack(meta);
     }
 
-    public async Task<IDbResponse> GetProductById(int productId)
+    public async Task<IDbResponse<ProductDto>> GetProductById(int productId)
     {
         var result = await _context.Products
             .AsNoTracking()
@@ -90,15 +85,15 @@ public class ProductService
             })
             .FirstOrDefaultAsync();
 
-        if (result == null)
-            return DbResponse.Failure(new ProductError().NotFound());
+        if (result is null)
+            return DbResponse<ProductDto>.Failure(new ProductError().NotFound());
 
-        ProductDto product = new ProductMapper().Map(result);
+        ProductDto data = new ProductMapper().Map(result);
 
-        return DbQuery<ProductDto>.GiveBack(product);
+        return DbResponse<ProductDto>.GiveBack(data);
     }
 
-    public async Task<IDbResponse> AddProduct(AddProductCommand request)
+    public async Task<IDbResponse<ProductDto>> AddProduct(AddProductCommand request)
     {
         Product product = new Product
         {
@@ -115,15 +110,17 @@ public class ProductService
         await _context.Products.AddAsync(product);
         await _context.SaveChangesAsync();
 
-        return DbResponse.Success;
+        ProductDto data = new ProductMapper().Map(product);
+
+        return DbResponse<ProductDto>.GiveBack(data);
     }
 
-    public async Task<IDbResponse> EditProduct(int productId, EditProductCommand request)
+    public async Task<IDbResponse<ProductDto>> EditProduct(int productId, EditProductCommand request)
     {
         var found = await _context.Products.FindAsync(productId);
 
-        if (found == null)
-            return DbResponse.Failure(new ProductError().NotFound());
+        if (found is null)
+            return DbResponse<ProductDto>.Failure(new ProductError().NotFound());
 
         found.CategoryId = request.CategoryId;
         found.SKU = request.SKU;
@@ -136,20 +133,22 @@ public class ProductService
 
         await _context.SaveChangesAsync();
 
-        return DbResponse.Success;
+        ProductDto data = new ProductMapper().Map(found);
+
+        return DbResponse<ProductDto>.GiveBack(data);
     }
 
-    public async Task<IDbResponse> DeleteProduct(int productId)
+    public async Task<IDbResponse<string>> DeleteProduct(int productId)
     {
         var found = await _context.Products.FindAsync(productId);
 
         if (found == null)
-            return DbResponse.Failure(new ProductError().NotFound());
+            return DbResponse<string>.Failure(new ProductError().NotFound());
 
         _context.Products.Remove(found);
 
         await _context.SaveChangesAsync();
 
-        return DbResponse.Success;
+        return DbResponse<string>.GiveBack($"Sản phẩm với mã số {productId} đã được xóa đi");
     }
 }

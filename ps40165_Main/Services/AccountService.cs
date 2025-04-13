@@ -5,7 +5,6 @@ using ps40165_Main.Database;
 using ps40165_Main.Database.DbResponse;
 using ps40165_Main.Database.DbResponse.ErrorDoc;
 using ps40165_Main.Dtos;
-using ps40165_Main.Mapper.ModelToDto;
 using ps40165_Main.Models;
 
 namespace ps40165_Main.Services;
@@ -15,15 +14,17 @@ public class AccountService
     private readonly AppDbContext _context;
     private readonly PasswordHasher _hasher;
     private readonly UserManager<IdentityUser> _userManager;
+    private readonly JwtGenerateService _jwt;
 
-    public AccountService(AppDbContext context, PasswordHasher hasher, UserManager<IdentityUser> userManager)
+    public AccountService(AppDbContext context, PasswordHasher hasher, UserManager<IdentityUser> userManager, JwtGenerateService jwt)
     {
         _context = context;
         _hasher = hasher;
         _userManager = userManager;
+        _jwt = jwt;
     }
 
-    public async Task<IDbResponse> RegisterUser(RegisterUserCommand request)
+    public async Task<IDbResponse<TokenDto>> RegisterUser(RegisterUserCommand request)
     {
         string hashedPassword = _hasher.Hash(request.Password);
 
@@ -38,25 +39,26 @@ public class AccountService
         await _context.Accounts.AddAsync(account);
         await _context.SaveChangesAsync();
 
-        AccountDto data = new AccountMapper().Map(account);
+        TokenDto data = new TokenDto();
+        data.Token = _jwt.GenerateUserToken(account);
 
-        return DbQuery<AccountDto>.GiveBack(data);
+        return DbResponse<TokenDto>.GiveBack(data);
     }
 
-    public async Task<IDbResponse> RegisterAdminAsync(RegisterAdminCommand request)
+    public async Task<IDbResponse<string>> RegisterAdminAsync(RegisterAdminCommand request)
     {
         return await RegisterWithRoleAsync(request.Email, request.Password, "Admin");
     }
 
-    public async Task<IDbResponse> RegisterModeratorAsync(RegisterModeratorCommand request)
+    public async Task<IDbResponse<string>> RegisterModeratorAsync(RegisterModeratorCommand request)
     {
         return await RegisterWithRoleAsync(request.Email, request.Password, "Moderator");
     }
 
-    private async Task<IDbResponse> RegisterWithRoleAsync(string email, string password, string role)
+    private async Task<IDbResponse<string>> RegisterWithRoleAsync(string email, string password, string role)
     {
         if (await _userManager.FindByEmailAsync(email).ConfigureAwait(false) is not null)
-            return DbResponse.Failure(new RegisterError().AlreadyExist(email));
+            return DbResponse<string>.Failure(new RegisterError().AlreadyExist(email));
 
         var user = new IdentityUser
         {
@@ -71,7 +73,7 @@ public class AccountService
             await _userManager.AddToRoleAsync(user, role);
         }
 
-        return DbResponse.Success;
+        return DbResponse<string>.GiveBack("Đăng kí tài khoản thành công, hãy đăng nhập bên cổng đăng nhập");
     }
 
     public async Task<Account?> GetUserEmail(string email)

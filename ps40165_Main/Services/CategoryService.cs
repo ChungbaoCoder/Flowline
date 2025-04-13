@@ -18,13 +18,14 @@ public class CategoryService
         _context = context;
     }
 
-    public async Task<IDbResponse> GetListCategories(QueryPageCommand request)
+    public async Task<IDbResponse<PaginatedList<CategoryDto>>> GetListCategories(QueryPageCommand request)
     {
         int pageNumber = request.PageNumber < 1 ? 1 : request.PageNumber;
         int pageSize = request.PageSize < 1 ? 10 : request.PageSize;
 
         var categories = await _context.Categories
             .AsNoTracking()
+            .OrderBy(p => p.Id)
             .Skip((pageNumber - 1) * pageSize)
             .Take(pageSize)
             .Select(c => new Category
@@ -38,56 +39,52 @@ public class CategoryService
 
         if (categories.Count < 1)
         {
-            return DbResponse.Failure(new CategoryError().NotFound());
+            return DbResponse<PaginatedList<CategoryDto>>.Failure(new CategoryError().NotFound());
         }
 
         int totalCount = await _context.Categories.CountAsync();
         int totalPages = (int)Math.Ceiling(totalCount / (double)pageSize);
-
-        PaginationMetadata meta = new PaginationMetadata
-        {
-            CurrentPage = pageNumber,
-            PageSize = pageSize,
-            TotalCount = totalCount,
-            TotalPages = totalPages
-        };
 
         List<CategoryDto> data = new List<CategoryDto>();
 
         foreach (Category category in categories)
             data.Add(new CategoryMapper().Map(category));
 
-        return DbPagination<CategoryDto>.GiveBack(meta, data);
+        PaginatedList<CategoryDto> meta = new PaginatedList<CategoryDto>(data, pageNumber, pageSize, totalCount);
+
+        return DbResponse<PaginatedList<CategoryDto>>.GiveBack(meta);
     }
 
-    public async Task<IDbResponse> GetCategoryById(int categoryId)
+    public async Task<IDbResponse<CategoryDto>> GetCategoryById(int categoryId)
     {
         var found = await _context.Categories.FindAsync(categoryId);
 
-        if (found == null)
-            return DbResponse.Failure(new CategoryError().NotFound());
+        if (found is null)
+            return DbResponse<CategoryDto>.Failure(new CategoryError().NotFound());
 
-        CategoryDto category = new CategoryDto { Name = found.Name, Description = found.Description };
+        CategoryDto data = new CategoryMapper().Map(found);
 
-        return DbQuery<CategoryDto>.GiveBack(category);
+        return DbResponse<CategoryDto>.GiveBack(data);
     }
 
-    public async Task<IDbResponse> AddCategory(AddCategoryCommand request)
+    public async Task<IDbResponse<CategoryDto>> AddCategory(AddCategoryCommand request)
     {
         Category category = new Category { Name = request.Name, Alias = request.Alias, Description = request.Description };
 
         await _context.Categories.AddAsync(category);
         await _context.SaveChangesAsync();
 
-        return DbResponse.Success;
+        CategoryDto data = new CategoryMapper().Map(category);
+
+        return DbResponse<CategoryDto>.GiveBack(data);
     }
 
-    public async Task<IDbResponse> EditCategory(int categoryId, EditCategoryCommand request)
+    public async Task<IDbResponse<CategoryDto>> EditCategory(int categoryId, EditCategoryCommand request)
     {
         var found = await _context.Categories.FindAsync(categoryId);
 
-        if (found == null)
-            return DbResponse.Failure(new CategoryError().NotFound());
+        if (found is null)
+            return DbResponse<CategoryDto>.Failure(new CategoryError().NotFound());
 
         found.Name = request.Name;
         found.Alias = request.Alias;
@@ -95,20 +92,22 @@ public class CategoryService
 
         await _context.SaveChangesAsync();
 
-        return DbResponse.Success;
+        CategoryDto data = new CategoryMapper().Map(found);
+
+        return DbResponse<CategoryDto>.GiveBack(data);
     }
 
-    public async Task<IDbResponse> DeleteCategory(int categoryId)
+    public async Task<IDbResponse<string>> DeleteCategory(int categoryId)
     {
         var found = await _context.Categories.FindAsync(categoryId);
 
         if (found == null)
-            return DbResponse.Failure(new CategoryError().NotFound());
+            return DbResponse<string>.Failure(new CategoryError().NotFound());
 
         _context.Categories.Remove(found);
 
         await _context.SaveChangesAsync();
 
-        return DbResponse.Success;
+        return DbResponse<string>.GiveBack($"Loại sản phẩm với mã số {categoryId}  đã được xóa đi");
     }
 }

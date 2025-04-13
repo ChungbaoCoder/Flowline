@@ -17,12 +17,12 @@ builder.Services.AddOpenApi();
 var app = builder.Build();
 
 //Seed database
-using (var scope = app.Services.CreateScope())
-{
-    var service = scope.ServiceProvider;
-    await SeedDb.SeedRolesAsync(service);
-    await SeedDb.SeedAdminUserAsync(service);
-}
+//using (var scope = app.Services.CreateScope())
+//{
+//    var service = scope.ServiceProvider;
+//    await SeedDb.SeedRolesAsync(service);
+//    await SeedDb.SeedAdminUserAsync(service);
+//}
 
 // Configure the HTTP request pipeline.
 if (app.Environment.IsDevelopment())

@@ -1,4 +1,5 @@
-﻿using ps40165_Main.Database;
+﻿using Microsoft.EntityFrameworkCore;
+using ps40165_Main.Database;
 using ps40165_Main.Database.DbResponse;
 using ps40165_Main.Database.DbResponse.ErrorDoc;
 using ps40165_Main.Models;
@@ -14,34 +15,45 @@ public class ProductImageService
         _context = context;
     }
 
-    public async Task<IDbResponse> AddImage(ProductImage image)
+    public async Task<IDbResponse<string>> AddImage(ProductImage image)
     {
         await _context.ProductImages.AddAsync(image);
         await _context.SaveChangesAsync();
 
-        return DbResponse.Success;
+        return DbResponse<string>.Success;
     }
 
-    public async Task<IDbResponse> EditImage(int productImageId)
+    public async Task<IDbResponse<string>> EditImage(int productImageId)
     {
         var found = await _context.ProductImages.FindAsync(productImageId);
 
-        if (found == null)
-            return DbResponse.Failure(new ProductImageError().NotFound());
-
+        if (found is null)
+            return DbResponse<string>.Failure(new ProductImageError().NotFound());
 
         await _context.SaveChangesAsync();
 
-        return DbResponse.Success;
+        return DbResponse<string>.Success;
     }
 
-    public async Task<IDbResponse> DeleteImage(int productImageId)
+    public async Task<IDbResponse<string>> DeleteImage(int productImageId)
     {
         var found = await _context.ProductImages.FindAsync(productImageId);
 
-        if (found == null)
-            return DbResponse.Failure(new ProductImageError().NotFound());
+        if (found is null)
+            return DbResponse<string>.Failure(new ProductImageError().NotFound());
 
-        return DbResponse.Success;
+        return DbResponse<string>.Success;
+    }
+
+    public async Task<string> GetMainImage(int productId)
+    {
+        var found = await _context.ProductImages.SingleOrDefaultAsync(pi => pi.ProductId == productId);
+
+        if (found is not null)
+        {
+            return found.ImagePath ?? "No Image";
+        }
+
+        return "No Image";
     }
 }

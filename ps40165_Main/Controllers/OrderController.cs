@@ -2,7 +2,6 @@
 using ps40165_Main.Commands;
 using ps40165_Main.Database.DbResponse;
 using ps40165_Main.Dtos;
-using ps40165_Main.Models;
 using ps40165_Main.Services;
 
 namespace ps40165_Main.Controllers;
@@ -28,21 +27,20 @@ public class OrderController : ControllerBase
 
         var result = await _order.GetListOrder(request);
 
-        if (result.IsSuccess && result is DbPagination<OrderDto> query)
+        if (result.IsSuccess)
         {
-            return Created(HttpContext.Request.Path, new CentralResponse<List<OrderDto>>
+            return Created(HttpContext.Request.Path, new CentralResponse<PaginatedList<OrderDto>>
             {
                 IsSuccess = result.IsSuccess,
-                Pagination = query.Metadata,
-                Data = query.Data
+                Data = result.Data
             });
         }
-        else if (!result.IsSuccess && result is DbResponse response)
+        else if (!result.IsSuccess)
         {
-            return BadRequest(new CentralResponse
+            return BadRequest(new CentralResponse<PaginatedList<OrderDto>>
             {
-                IsSuccess = !result.IsSuccess,
-                Error = new Error(response.Error.Type, response.Error.Detail)
+                IsSuccess = result.IsSuccess,
+                Error = new Error(result.Errors.Type, result.Errors.Detail)
             });
         }
         else
@@ -59,20 +57,20 @@ public class OrderController : ControllerBase
 
         var result = await _order.MakeOrder(request);
 
-        if (result.IsSuccess && result is DbQuery<OrderDto> success)
+        if (result.IsSuccess)
         {
             return Created(HttpContext.Request.Path, new CentralResponse<OrderDto>
             {
                 IsSuccess = result.IsSuccess,
-                Data = success.Data
+                Data = result.Data
             });
         }
-        else if (!result.IsSuccess && result is DbResponse failure)
+        else if (!result.IsSuccess)
         {
-            return BadRequest(new CentralResponse
+            return BadRequest(new CentralResponse<OrderDto>
             {
-                IsSuccess = !result.IsSuccess,
-                Error = new Error(failure.Error.Type, failure.Error.Detail)
+                IsSuccess = result.IsSuccess,
+                Error = new Error(result.Errors.Type, result.Errors.Detail)
             });
         }
         else

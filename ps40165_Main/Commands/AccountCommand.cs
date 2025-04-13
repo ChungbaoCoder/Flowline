@@ -27,9 +27,9 @@ public class RegisterModeratorCommand
 
 public class LoginUserCommand
 {
-    public string Email { get; set; }
+    public required string Email { get; set; }
 
-    public string Password { get; set; }
+    public required string Password { get; set; }
 }
 
 public class LoginEmployeeCommand

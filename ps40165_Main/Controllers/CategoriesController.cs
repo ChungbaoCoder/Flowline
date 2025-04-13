@@ -27,21 +27,20 @@ public class CategoriesController : ControllerBase
 
         var result = await _category.GetListCategories(request);
 
-        if (result.IsSuccess && result is DbPagination<CategoryDto> query)
+        if (result.IsSuccess)
         {
-            return Created(HttpContext.Request.Path, new CentralResponse<List<CategoryDto>>
+            return Created(HttpContext.Request.Path, new CentralResponse<PaginatedList<CategoryDto>>
             {
                 IsSuccess = result.IsSuccess,
-                Pagination = query.Metadata,
-                Data = query.Data
+                Data = result.Data
             });
         }
-        else if (!result.IsSuccess && result is DbResponse response)
+        else if (!result.IsSuccess)
         {
-            return BadRequest(new CentralResponse
+            return BadRequest(new CentralResponse<PaginatedList<CategoryDto>>
             {
-                IsSuccess = !result.IsSuccess,
-                Error = new Error(response.Error.Type, response.Error.Detail)
+                IsSuccess = result.IsSuccess,
+                Error = new Error(result.Errors.Type, result.Errors.Detail)
             });
         }
         else
@@ -60,20 +59,20 @@ public class CategoriesController : ControllerBase
 
         var result = await _category.GetCategoryById(id);
 
-        if (result.IsSuccess && result is DbQuery<CategoryDto> query)
+        if (result.IsSuccess)
         {
             return Created(HttpContext.Request.Path, new CentralResponse<CategoryDto>
             {
                 IsSuccess = result.IsSuccess,
-                Data = query.Data
+                Data = result.Data
             });
         }
-        else if (!result.IsSuccess && result is DbResponse response)
+        else if (!result.IsSuccess)
         {
-            return BadRequest(new CentralResponse
+            return BadRequest(new CentralResponse<CategoryDto>
             {
-                IsSuccess = !result.IsSuccess,
-                Error = new Error(response.Error.Type, response.Error.Detail)
+                IsSuccess = result.IsSuccess,
+                Error = new Error(result.Errors.Type, result.Errors.Detail)
             });
         }
         else
@@ -92,19 +91,20 @@ public class CategoriesController : ControllerBase
 
         var result = await _category.AddCategory(request);
 
-        if (result.IsSuccess && result is DbResponse)
+        if (result.IsSuccess)
         {
-            return Created(HttpContext.Request.Path, new CentralResponse
+            return Created(HttpContext.Request.Path, new CentralResponse<CategoryDto>
             {
-                IsSuccess = result.IsSuccess
+                IsSuccess = result.IsSuccess,
+                Data = result.Data
             });
         }
-        else if (!result.IsSuccess && result is DbResponse failure)
+        else if (!result.IsSuccess)
         {
-            return BadRequest(new CentralResponse
+            return BadRequest(new CentralResponse<CategoryDto>
             {
                 IsSuccess = !result.IsSuccess,
-                Error = new Error(failure.Error.Type, failure.Error.Detail)
+                Error = new Error(result.Errors.Type, result.Errors.Detail)
             });
         }
         else
@@ -125,11 +125,55 @@ public class CategoriesController : ControllerBase
 
         if (result.IsSuccess)
         {
-            return Ok(result);
+            return Created(HttpContext.Request.Path, new CentralResponse<CategoryDto>
+            {
+                IsSuccess = result.IsSuccess,
+                Data = result.Data
+            });
+        }
+        else if (!result.IsSuccess)
+        {
+            return BadRequest(new CentralResponse<CategoryDto>
+            {
+                IsSuccess = !result.IsSuccess,
+                Error = new Error(result.Errors.Type, result.Errors.Detail)
+            });
         }
         else
         {
-            return NotFound(result);
+            return BadRequest(result);
+        }
+    }
+
+    [HttpDelete("{id}")]
+    public async Task<IActionResult> DeleteCategory(int id)
+    {
+        if (!ModelState.IsValid)
+        {
+            return BadRequest(ModelState);
+        }
+
+        var result = await _category.DeleteCategory(id);
+
+        if (result.IsSuccess)
+        {
+            return Created(HttpContext.Request.Path, new CentralResponse<string>
+            {
+                IsSuccess = result.IsSuccess,
+                Data = result.Data
+            });
+        }
+        else if (!result.IsSuccess)
+        {
+            return BadRequest(new CentralResponse<string>
+            {
+                IsSuccess = !result.IsSuccess,
+                Error = new Error(result.Errors.Type, result.Errors.Detail)
+            });
+        }
+        else
+        {
+            return BadRequest(result);
         }
     }
 }

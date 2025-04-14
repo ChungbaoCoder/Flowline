@@ -1,0 +1,30 @@
+﻿@inherits LayoutComponentBase
+
+<div class="container my-5">
+    <div class="row">
+        <!-- Sidebar -->
+        <div class="col-md-3 mb-4">
+            <div class="list-group">
+                <NavLink href="/user/info" class="list-group-item list-group-item-action" activeClass="active">
+                    👤 Thông tin cá nhân
+                </NavLink>
+                <NavLink href="/user/orders" class="list-group-item list-group-item-action" activeClass="active">
+                    📦 Đơn hàng của tôi
+                </NavLink>
+                <NavLink href="/user/settings" class="list-group-item list-group-item-action" activeClass="active">
+                    ⚙️ Cài đặt tài khoản
+                </NavLink>
+                <NavLink href="/logout" class="list-group-item list-group-item-action text-danger">
+                    🚪 Đăng xuất
+                </NavLink>
+            </div>
+        </div>
+
+        <!-- Main Content -->
+        <div class="col-md-9">
+            <div class="bg-white shadow-sm p-4 rounded">
+                @Body
+            </div>
+        </div>
+    </div>
+</div>

@@ -17,7 +17,7 @@ public class ProductMapper : IMapper<Product, ProductDto>
             StockLevel = src.StockLevel,
             Price = src.Price,
             DisableBuyButton = src.DisableBuyButton,
-            ProductImages = src.ProductImages.Select(pi => pi.ImagePath).ToList()
+            ProductImages = new ListImageMapper().Map(src.ProductImages)
         };
     }
 }

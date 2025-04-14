@@ -1,0 +1,52 @@
+﻿@inherits LayoutComponentBase
+
+<div class="page container-fluid">
+    <header class="container py-3">
+        <nav class="navbar navbar-expand-lg navbar-light bg-white border-bottom">
+            <div class="container-fluid justify-content-between">
+                <div class="d-flex gap-3">
+                    <NavLink href="/" class="nav-link fw-bold" activeClass="active" Match="NavLinkMatch.All">
+                        🏪 Dashboard
+                    </NavLink>
+
+                    <ul class="d-flex gap-3 m-0 list-unstyled align-items-center">
+                        <li>
+                            <NavLink href="/Categories" class="nav-link" activeClass="active">
+                                📂 Loại hàng
+                            </NavLink>
+                        </li>
+                        <li>
+                            <NavLink href="/Products" class="nav-link" activeClass="active">
+                                📦 Sản phẩm
+                            </NavLink>
+                        </li>
+                        <li>
+                            <NavLink href="/Orders" class="nav-link" activeClass="active">
+                                📑 Đơn hàng
+                            </NavLink>
+                        </li>
+                        <li>
+                            <NavLink href="/Accounts" class="nav-link" activeClass="active">
+                                👥 Tài khoản
+                            </NavLink>
+                        </li>
+                    </ul>
+                </div>
+
+                <div>
+                    <NavLink href="/user/account" class="nav-link" activeClass="active">
+                        👤 Tài khoản
+                    </NavLink>
+                </div>
+            </div>
+        </nav>
+    </header>
+
+    <main class="container my-4">
+        @Body
+    </main>
+</div>
+
+@code {
+
+}

@@ -19,16 +19,6 @@ public class AuthController : ControllerBase
         _login = login;
     }
 
-    [HttpGet("whoami")]
-    public async Task<IActionResult> WhoAmI()
-    {
-        var userId = User.FindFirstValue(ClaimTypes.NameIdentifier);
-
-
-        return Ok();
-
-    }
-
     [AllowAnonymous]
     [HttpPost("user")]
     public async Task<IActionResult> LoginUserAccount([FromBody] LoginUserCommand request)

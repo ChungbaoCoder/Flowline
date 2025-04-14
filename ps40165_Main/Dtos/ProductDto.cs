@@ -18,5 +18,16 @@ public class ProductDto
 
     public bool DisableBuyButton { get; set; }
 
-    public List<string> ProductImages { get; set; } = new List<string>();
+    public List<ProductImageDto> ProductImages { get; set; } = new List<ProductImageDto>();
+}
+
+public class ProductImageDto
+{
+    public string? ImagePath { get; set; }
+
+    public bool MainImage { get; set; }
+
+    public int? Height { get; set; }
+
+    public int? Width { get; set; }
 }

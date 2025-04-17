@@ -33,12 +33,14 @@ public class OrderService
             .Select(o => new Order
             {
                 Id = o.Id,
-                AccountId = o.AccountId,
+                Customer = o.Customer,
                 OrderDate = o.OrderDate,
                 Status = o.Status,
                 Completed = o.Completed,
                 Total = o.Total,
-                OrderItems = o.OrderItems
+                OrderItems = o.OrderItems,
+                CreatedOnUtc = o.CreatedOnUtc,
+                UpdatedOnUtc = o.UpdatedOnUtc
             })
             .ToListAsync();
 

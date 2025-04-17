@@ -1,0 +1,215 @@
+﻿@page "/orders/manage"
+
+@inject IJSRuntime _js
+@inject NavigationManager _nav
+@inject OrderService _svc
+
+<PageTitle>Quản lí loại sản phẩm</PageTitle>
+
+<div class="d-flex justify-content-between align-items-center">
+
+    <h5 id="Table-title">Manage Products</h5>
+
+    <form class="input-group w-50" action="Post">
+        <input type="text" class="form-control" placeholder="Find by SKU, GTIN or MPN">
+        <span class="input-group-text">🔍</span>
+    </form>
+
+</div>
+
+<a href="#" class="btn btn-light">Filter</a>
+<NavLink href="/orders/create" activeClass="active" class="btn btn-light">+ Thêm mới</NavLink>
+
+<div class="mt-3" style="max-height: 500px; overflow: auto;">
+    <table class="table table-bordered">
+
+        <thead class="table-light sticky-top">
+            <tr>
+
+                <th>Mã đơn hàng</th>
+                <th>Tên khách</th>
+                <th>Ngày đặt hàng</th>
+                <th>Trạng thái</th>
+                <th>Đã thanh toán</th>
+                <th>Tổng tiền</th>
+                <th class="sticky-end" style="width: 30px"></th>
+
+            </tr>
+        </thead>
+
+        <tbody>
+
+            @if (!orders.Any())
+            {
+                <tr>
+                    <td colspan="8">
+                    </td>
+                    <td class="text-center align-middle">
+                        <div class="d-flex gap-1 m-0">
+                            <button type="button" class="btn btn-sm p-0">✏️</button>
+                            <button type="button" class="btn btn-sm p-0">🗑️</button>
+                        </div>
+                    </td>
+                </tr>
+            }
+            else
+            {
+                @foreach (var order in orders)
+                {
+                    <tr>
+                        <td>@order.Id</td>
+                        <td>@order.Customer.CustomerName</td>
+                        <td>@order.OrderDate</td>
+                        <td>@order.Status</td>
+                        <td>@order.Completed</td>
+                        <td>@order.Total</td>
+                        <td class="text-center align-middle">
+                            <div class="d-flex gap-1 m-0">
+                                <button type="button" @onclick="() => GoToEdit(order.Id)" class="btn btn-sm p-0">✏️</button>
+                                <button type="button" @onclick="() => ConfirmAndRemove(order.Id)" class=" btn btn-sm p-0">🗑️</button>
+                            </div>
+                        </td>
+                    </tr>
+                }
+            }
+
+        </tbody>
+
+        <tfoot class="sticky-bottom table-light">
+            <tr>
+
+                <td colspan="8">
+                    <div class="d-flex justify-content-between align-items-center">
+
+                        <ul class="d-flex m-0 list-unstyled">
+                            <li><button type="button" class="btn btn-sm btn-light">↻</button></li>
+                            <li><button type="button" class="btn btn-sm btn-light" @onclick="First">&lt;&lt;</button></li>
+                            <li><button type="button" class="btn btn-sm btn-light" @onclick="PreviousPage">&lt;</button></li>
+
+                            @for (int i = 1; i <= totalPage; i++)
+                            {
+                                <li>
+                                    <button @onclick="() => ChangePage(i)" class="@(currentPage == i ? "fw-bold" : "") btn btn-sm btn-light">@i</button>
+                                </li>
+                            }
+
+                            <li><button class="btn btn-sm btn-light" @onclick="NextPage">&gt;</button></li>
+                            <li><button class="btn btn-sm btn-light" @onclick="Last">&gt;&gt;</button></li>
+                        </ul>
+
+                        <p class="m-0">
+                            Đang hiển thị 1-@pageSize trong số @totalItems sản phẩm
+                        </p>
+
+                    </div>
+                </td>
+
+                <td>
+                    <select class="form-select form-select-sm" @onchange="SizeDisplayChanged">
+                        <option selected value="25">Hiện 25 dòng</option>
+                        <option value="50">Hiện 50 dòng</option>
+                        <option value="100">Hiện 100 dòng</option>
+                        <option value="150">Hiện 150 dòng</option>
+                        <option value="200">Hiện 200 dòng</option>
+                    </select>
+                </td>
+
+            </tr>
+        </tfoot>
+
+    </table>
+</div>
+
+@code {
+    private List<Order> orders = new List<Order>();
+
+    private void GoToEdit(int id)
+    {
+        _nav.NavigateTo($"/orders/edit/{id}");
+    }
+
+    private async Task ConfirmAndRemove(int id)
+    {
+        if (await _js.InvokeAsync<bool>("confirm", $"Are you sure you want to delete order #{id}?"))
+        {
+            await RemoveOrder(id);
+        }
+    }
+
+    private async Task RemoveOrder(int id)
+    {
+        var result = await _svc.DeleteOrder(id);
+
+        if (result.IsSuccess)
+        {
+            var orderToRemove = orders.FirstOrDefault(o => o.Id == id);
+            if (orderToRemove != null)
+            {
+                orders.Remove(orderToRemove);
+            }
+        }
+        else
+        {
+            
+        }
+    }
+}
+
+@code {
+    private int currentPage = 1;
+
+    private int pageSize = 25;
+
+    private int totalPage = 1;
+
+    private int totalItems => orders.Count();
+
+    private decimal bulletNumber => totalPage;
+
+    protected override async Task OnInitializedAsync()
+    {
+        orders = await _svc.GetListAsync(currentPage, pageSize);
+    }
+
+    private async Task ChangePage(int page)
+    {
+        currentPage = page;
+        orders = await _svc.GetListAsync(currentPage, pageSize);
+    }
+
+    private async Task NextPage()
+    {
+        if (currentPage < totalPage)
+        {
+            currentPage++;
+            orders = await _svc.GetListAsync(currentPage, pageSize);
+        }
+    }
+
+    private async Task PreviousPage()
+    {
+        if (currentPage > 1)
+        {
+            currentPage--;
+            orders = await _svc.GetListAsync(currentPage, pageSize);
+        }
+    }
+
+    public async Task First()
+    {
+        currentPage = 1;
+        orders = await _svc.GetListAsync(currentPage, pageSize);
+    }
+
+    public async Task Last()
+    {
+        currentPage = 1;
+        orders = await _svc.GetListAsync(currentPage, pageSize);
+    }
+
+    private async Task SizeDisplayChanged(ChangeEventArgs e)
+    {
+        pageSize = int.Parse(e.Value.ToString());
+        orders = await _svc.GetListAsync(currentPage, pageSize);
+    }
+}

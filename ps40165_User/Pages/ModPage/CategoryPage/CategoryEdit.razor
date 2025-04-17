@@ -1,0 +1,11 @@
+﻿@page "/categories/edit/{id:int}"
+@layout StoreLayout
+
+@inject IJSRuntime _js
+@inject NavigationManager _nav
+
+@code {
+    [Parameter]
+    public int id { get; set; }
+
+}

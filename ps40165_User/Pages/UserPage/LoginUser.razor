@@ -1,0 +1,98 @@
+﻿@page "/user/login"
+
+@inject AuthService _svc
+@inject IJSRuntime _js
+@inject NavigationManager _nav
+
+@if (error)
+{
+    <div class="alert alert-danger mt-3" role="alert">
+        ❌ Trường còn để trống
+    </div>
+}
+
+<EditForm Model="@request" OnValidSubmit="HandleValidSubmit" OnInvalidSubmit="HandleInvalidSubmit">
+    <DataAnnotationsValidator />
+
+    <div class="form-group">
+
+        <label>Email:</label>
+        <InputText @bind-Value="request.Email" class="form-control" />
+        <ValidationMessage For="@(() => request.Email)" />
+
+    </div>
+
+    <div class="form-group">
+
+        <label>Password:</label>
+        <InputText @bind-Value="request.Password" type="password" class="form-control" />
+        <ValidationMessage For="@(() => request.Password)" />
+
+    </div>
+
+    <button type="submit" class="btn btn-primary" disabled="@isProcessing">
+        @if (isProcessing)
+        {
+            <span class="spinner-border spinner-border-sm"></span>
+        }
+        Login
+    </button>
+
+</EditForm>
+
+@if (showToast)
+{
+    <div class="toast-container position-fixed bottom-0 end-0 p-3" style="z-index: 1055;">
+
+        <div id="successToast" class="toast align-items-center text-bg-success border-0 show" role="alert" aria-live="assertive" aria-atomic="true">
+
+            <div class="d-flex">
+                <div class="toast-body">
+                    ✅ Đăng nhập thành công sẽ điều hướng trong vài giây
+                </div>
+                <button type="button" class="btn-close btn-close-white me-2 m-auto" data-bs-dismiss="toast" aria-label="Close"></button>
+            </div>
+
+        </div>
+
+    </div>
+}
+
+@code {
+    private LoginRequest request = new LoginRequest();
+
+    private bool isProcessing = false;
+
+    private bool error = false;
+
+    private bool firstLoad = true;
+
+    private bool showToast = false;
+
+    protected override void OnInitialized()
+    {
+        error = false;
+        firstLoad = true;
+        showToast = false;
+    }
+
+    private async Task HandleValidSubmit()
+    {
+        if (firstLoad)
+        {
+            firstLoad = false;
+            return;
+        }
+
+        error = false;
+        showToast = true;
+
+        await Task.Delay(500);
+        await _js.InvokeVoidAsync("showSuccessToast");
+    }
+
+    private void HandleInvalidSubmit()
+    {
+        error = true;
+    }
+}

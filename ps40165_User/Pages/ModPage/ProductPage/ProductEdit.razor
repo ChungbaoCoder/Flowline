@@ -1,0 +1,162 @@
+﻿@page "/products/edit/{id:int}"
+@layout StoreLayout
+
+@inject IJSRuntime _js
+@inject NavigationManager _nav
+
+<div class="d-flex justify-content-between align-items-center sticky-top">
+
+    <div>
+        <NavLink class="nav-link" href="/products/manage" activeClass="active">⬅</NavLink>
+
+        <h5 class="d-inline">Chỉnh sửa sản phẩm - @id</h5>
+    </div>
+
+    <div>
+        <button type="submit" form="edit" class="btn btn-primary">✓ Lưu</button>
+        <button type="submit" form="edit" class="btn btn-secondary">Lưu và chỉnh sửa thêm</button>
+    </div>
+
+</div>
+
+@if (error)
+{
+    <div class="alert alert-danger mt-3" role="alert">
+        ❌ Trường còn để trống
+    </div>
+}
+
+<div class="row gap-3 mt-3">
+
+    <aside class="col-2 border-end">
+        <ul class="list-unstyled">
+
+            <li class="mt-2"><button @onclick="() => SetSection(Tab.Info)">Thông tin</button></li>
+            <li class="mt-2"><button @onclick="() => SetSection(Tab.Image)">Hình ảnh</button></li>
+
+        </ul>
+    </aside>
+
+    <main class="col-9">
+
+        <EditForm id="edit" Model="@product" FormName="EditProduct" OnValidSubmit="HandleValidSubmit" OnInvalidSubmit="HandleInvalidSubmit" class="needs-validation">
+            <DataAnnotationsValidator />
+
+            <div class="mb-3 d-flex">
+                <label class="form-label mt-2" style="min-width: 225px;">SKU</label>
+                <div>
+                    <InputText class="form-control" style="min-width: 425px;" @bind-Value="product.SKU" disabled />
+                </div>
+            </div>
+
+            <div class="mb-3 d-flex">
+                <label class="form-label mt-2" style="min-width: 225px;">Tên sản phẩm</label>
+                <div>
+                    <InputText class="form-control" style="min-width: 425px;" @bind-Value="product.Name" />
+                    <ValidationMessage For="@(() => product.Name)" class="invalid-feedback d-block" style="min-width: 200px;" />
+                </div>
+            </div>
+
+            <div class="mb-3 d-flex">
+                <label class="form-label mt-2" style="min-width: 225px;">Nội dung</label>
+                <div>
+                    <InputTextArea class="form-control" style="min-width: 425px;" @bind-Value="product.Description" />
+                    <ValidationMessage For="@(() => product.Description)" class="invalid-feedback d-block" style="min-width: 200px;" />
+                </div>
+            </div>
+
+            <div class="mb-3 d-flex">
+                <label class="form-label mt-2" style="min-width: 225px;">Nội dung dưới</label>
+                <div>
+                    <InputTextArea class="form-control" style="min-width: 425px;" @bind-Value="product.UnderDescription" />
+                    <ValidationMessage For="@(() => product.UnderDescription)" class="invalid-feedback d-block" style="min-width: 200px;" />
+                </div>
+            </div>
+
+            <div class="mb-3 d-flex">
+                <label class="form-label mt-2" style="min-width: 225px;">Số lượng</label>
+                <div>
+                    <InputNumber class="form-control" style="min-width: 425px;" @bind-Value="product.StockLevel" />
+                    <ValidationMessage For="@(() => product.StockLevel)" class="invalid-feedback d-block" style="min-width: 200px;" />
+                </div>
+            </div>
+
+            <div class="mb-3 d-flex">
+                <label class="form-label mt-2" style="min-width: 225px;">Giá</label>
+                <div>
+                    <InputNumber class="form-control" style="min-width: 425px;" @bind-Value="product.Price" />
+                    <ValidationMessage For="@(() => product.Price)" class="invalid-feedback d-block" style="min-width: 200px;" />
+                </div>
+            </div>
+
+            <div class="mb-3 d-flex form-check-reverse form-switch">
+                <label class="form-label text-start" style="min-width: 220px;">Chặn mua</label>
+                <div>
+                    <InputCheckbox class="form-check-input" @bind-Value="product.DisableBuyButton"></InputCheckbox>
+                </div>
+            </div>
+
+        </EditForm>
+
+    </main>
+
+</div>
+
+<ShowToast showToast="@showToast" message="@message"></ShowToast>
+
+@code {
+    [Parameter]
+    public int id { get; set; }
+
+    private Product product = new Product();
+
+    private bool error = false;
+
+    private bool firstLoad = true;
+
+    private bool showToast = false;
+
+    private string message = string.Empty;
+
+    protected override void OnInitialized()
+    {
+        error = false;
+        firstLoad = true;
+        showToast = false;
+    }
+
+    private async Task HandleValidSubmit()
+    {
+        if (firstLoad)
+        {
+            firstLoad = false;
+            return;
+        }
+
+        error = false;
+        showToast = true;
+
+        await Task.Delay(500);
+        await _js.InvokeVoidAsync("showSuccessToast");
+    }
+
+    private void HandleInvalidSubmit()
+    {
+        error = true;
+    }
+}
+
+@code {
+    private enum Tab
+    {
+        Info,
+        Image
+    }
+
+    private Tab currentTab = Tab.Info;
+
+    private void SetSection(Tab section)
+    {
+        currentTab = section;
+    }
+}

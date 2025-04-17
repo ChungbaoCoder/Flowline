@@ -27,9 +27,9 @@ public class DbResponse<T> : IDbResponse<T>
         Errors = error;
     }
 
-    public static DbResponse<T> Success => new DbResponse<T>();
+    public static DbResponse<T> Success => new();
 
-    public static DbResponse<T> GiveBack(T data) => new DbResponse<T>(data);
+    public static DbResponse<T> GiveBack(T data) => new(data);
 
-    public static DbResponse<T> Failure(IError error) => new DbResponse<T>(error);
+    public static DbResponse<T> Failure(IError error) => new(error);
 }

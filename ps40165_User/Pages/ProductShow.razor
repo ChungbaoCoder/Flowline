@@ -44,7 +44,7 @@
 
     protected override async Task OnInitializedAsync()
     {
-        products = await _svc.GetListAsync();
+        products = await _svc.GetListAsync(1, 3);
     }
 
 

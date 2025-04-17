@@ -10,7 +10,11 @@ public class OrderMapper : IMapper<Order, OrderDto>
         return new OrderDto
         {
             OrderId = src.Id,
-            AccountId = src.AccountId,
+            Customer = new CustomerDto 
+            { 
+                CustomerId = src.Customer.Id, 
+                CustomerName = src.Customer.Name 
+            },
             OrderDate = src.OrderDate,
             Status = src.Status,
             Completed = src.Completed,
@@ -23,6 +27,8 @@ public class OrderMapper : IMapper<Order, OrderDto>
                 Price = oi.Price
             })
             .ToList(),
+            CreatedOnUtc = src.CreatedOnUtc,
+            UpdatedOnUtc = src.UpdatedOnUtc
         };
     }
 }

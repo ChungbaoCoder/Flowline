@@ -6,7 +6,7 @@ public class OrderDto
 {
     public int OrderId { get; set; }
 
-    public int AccountId { get; set; }
+    public CustomerDto Customer { get; set; } = new CustomerDto();
 
     public DateTime OrderDate { get; set; }
 
@@ -16,5 +16,9 @@ public class OrderDto
 
     public decimal Total => Items.Sum(oi => oi.Total);
 
-    public List<OrderItemDto> Items { get; set; }
+    public List<OrderItemDto> Items { get; set; } = new List<OrderItemDto>();
+
+    public DateTime CreatedOnUtc { get; set; }
+
+    public DateTime UpdatedOnUtc { get; set; }
 }

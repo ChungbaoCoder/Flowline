@@ -6,7 +6,6 @@ using ps40165_Main.Services;
 
 namespace ps40165_Main.Controllers;
 
-[Authorize]
 [Route("api/[controller]")]
 [ApiController]
 public class ProductsController : ControllerBase
@@ -18,7 +17,6 @@ public class ProductsController : ControllerBase
         _product = product;
     }
 
-    [AllowAnonymous]
     [HttpGet]
     public async Task<IActionResult> GetProducts([FromQuery] QueryPageCommand request)
     {

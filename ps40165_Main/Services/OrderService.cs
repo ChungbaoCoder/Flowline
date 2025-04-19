@@ -23,13 +23,24 @@ public class OrderService
         int pageNumber = request.PageNumber < 1 ? 1 : request.PageNumber;
         int pageSize = request.PageSize < 1 ? 10 : request.PageSize;
 
-        var orders = await _context.Orders
+        var query = _context.Orders
             .AsNoTracking()
-            .OrderBy(p => p.Id)
+            .Include(o => o.OrderItems)
+            .Include(o => o.Customer)
+            .AsQueryable();
+
+        if (!string.IsNullOrWhiteSpace(request.SearchTerm))
+        {
+            var keyword = $"%{request.SearchTerm?.Trim()}%";
+
+            query = query.Where(o =>
+                EF.Functions.Like(o.Customer.Name, keyword));
+        }
+
+        var orders = await query
+            .OrderBy(o => o.Id)
             .Skip((pageNumber - 1) * pageSize)
             .Take(pageSize)
-            .Include(o => o.Customer)
-            .Include(o => o.OrderItems)
             .Select(o => new Order
             {
                 Id = o.Id,
@@ -49,7 +60,7 @@ public class OrderService
             return DbResponse<PaginatedList<OrderDto>>.Failure(new ProductError().NotFound());
         }
 
-        int totalCount = await _context.Products.CountAsync();
+        int totalCount = await query.CountAsync();
         int totalPages = (int)Math.Ceiling(totalCount / (double)pageSize);
 
         List<OrderDto> data = new List<OrderDto>();

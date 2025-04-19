@@ -7,7 +7,6 @@ using ps40165_Main.Services;
 
 namespace ps40165_Main.Controllers;
 
-[Authorize(AuthenticationSchemes = JwtBearerDefaults.AuthenticationScheme)]
 [Route("api/[controller]")]
 [ApiController]
 public class CategoriesController : ControllerBase
@@ -19,7 +18,6 @@ public class CategoriesController : ControllerBase
         _category = category;
     }
 
-    [AllowAnonymous]
     [HttpGet]
     public async Task<IActionResult> GetCategories([FromQuery] QueryPageCommand request)
     {
@@ -52,7 +50,6 @@ public class CategoriesController : ControllerBase
         }
     }
 
-    [AllowAnonymous]
     [HttpGet("{id}")]
     public async Task<IActionResult> GetCategoryById(int id)
     {

@@ -23,9 +23,22 @@ public class CategoryService
         int pageNumber = request.PageNumber < 1 ? 1 : request.PageNumber;
         int pageSize = request.PageSize < 1 ? 10 : request.PageSize;
 
-        var categories = await _context.Categories
+        var query = _context.Categories
             .AsNoTracking()
-            .OrderBy(p => p.Id)
+            .AsQueryable();
+
+        if (!string.IsNullOrWhiteSpace(request.SearchTerm))
+        {
+            var keyword = $"%{request.SearchTerm?.Trim()}%";
+
+            query = query.Where(c =>
+                EF.Functions.Like(c.Name, keyword) ||
+                EF.Functions.Like(c.Description, keyword) ||
+                EF.Functions.Like(c.Alias, keyword));
+        }
+
+        var categories = await query
+            .OrderBy(c => c.Id)
             .Skip((pageNumber - 1) * pageSize)
             .Take(pageSize)
             .Select(c => new Category
@@ -42,7 +55,7 @@ public class CategoryService
             return DbResponse<PaginatedList<CategoryDto>>.Failure(new CategoryError().NotFound());
         }
 
-        int totalCount = await _context.Categories.CountAsync();
+        int totalCount = await query.CountAsync();
         int totalPages = (int)Math.Ceiling(totalCount / (double)pageSize);
 
         List<CategoryDto> data = new List<CategoryDto>();

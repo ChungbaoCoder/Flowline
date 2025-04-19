@@ -1,4 +1,4 @@
-﻿@page "/products/edit/{id:int}"
+﻿@page "/products/create"
 @layout StoreLayout
 
 @attribute [Authorize(Roles = "Admin, Moderator")]
@@ -12,7 +12,7 @@
     <div>
         <NavLink class="nav-link" href="/products/manage" activeClass="active">⬅</NavLink>
 
-        <h5 class="d-inline">Chỉnh sửa sản phẩm - @id</h5>
+        <h5 class="d-inline">Tạo sản phẩm mới</h5>
     </div>
 
     <div>
@@ -35,7 +35,6 @@
         <ul class="list-unstyled">
 
             <li class="mt-2"><button @onclick="() => SetSection(Tab.Info)">Thông tin</button></li>
-            <li class="mt-2"><button @onclick="() => SetSection(Tab.Image)">Hình ảnh</button></li>
 
         </ul>
     </aside>
@@ -57,7 +56,7 @@
                 <div class="mb-3 d-flex">
                     <label class="form-label mt-2" style="min-width: 225px;">SKU</label>
                     <div>
-                        <InputText class="form-control" style="min-width: 425px;" @bind-Value="product.SKU" disabled />
+                        <InputText class="form-control" style="min-width: 425px;" @bind-Value="product.SKU" />
                     </div>
                 </div>
 
@@ -112,7 +111,7 @@
         }
         else
         {
-            <ProductImageEdit productImages="product.ProductImages" productId="id"></ProductImageEdit>
+            <ProductImageEdit productImages="product.ProductImages"></ProductImageEdit>
         }
 
     </main>
@@ -122,25 +121,7 @@
 <ShowToast showToast="@showToast" message="@message"></ShowToast>
 
 @code {
-    [Parameter]
-    public int id { get; set; }
-
     private Product product = new Product();
-
-    protected override async Task OnInitializedAsync()
-    {
-        await LoadProduct();
-    }
-
-    private async Task LoadProduct()
-    {
-        var result = await _svc.GetById(id);
-
-        if (result.IsSuccess && result.Data is not null)
-        {
-            product = result.Data;
-        }
-    }
 }
 
 @code {
@@ -163,25 +144,21 @@
         error = false;
         showToast = true;
 
-        EditProductRequest request = new EditProductRequest
-        {
-            CategoryId = product.CategoryId,
-            SKU = product.SKU,
-            Name = product.Name,
-            Description = product.Description,
-            UnderDescription = product.UnderDescription,
-            StockLevel = product.StockLevel,
-            Price = product.Price,
-            DisableBuyButton = product.DisableBuyButton
-        };
+        AddProductRequest request = new AddProductRequest
+            {
+                CategoryId = product.CategoryId,
+                SKU = product.SKU,
+                Name = product.Name,
+                Description = product.Description,
+                UnderDescription = product.UnderDescription,
+                StockLevel = product.StockLevel,
+                Price = product.Price,
+                DisableBuyButton = product.DisableBuyButton
+            };
 
-        var response = await _svc.PutProduct(id, request);
-
-        if (response.IsSuccess)
-        {
-            product = response.Data;
-            await _js.InvokeVoidAsync("showSuccessToast");
-        }
+        await _svc.PostProduct(request);
+        await _js.InvokeVoidAsync("showSuccessToast");
+        _nav.NavigateTo("/products/manage");
     }
 
     private void HandleInvalidSubmit()

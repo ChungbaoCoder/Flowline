@@ -10,6 +10,7 @@ public class ProductMapper : IMapper<Product, ProductDto>
         return new ProductDto
         {
             ProductId = src.Id,
+            CategoryId = src.CategoryId,
             SKU = src.SKU,
             Name = src.Name,
             Description = src.Description,
@@ -17,14 +18,7 @@ public class ProductMapper : IMapper<Product, ProductDto>
             StockLevel = src.StockLevel,
             Price = src.Price,
             DisableBuyButton = src.DisableBuyButton,
-            ProductImages = src.ProductImages.Select(pi => new ProductImageDto
-            {
-                ImagePath = pi.ImagePath,
-                MainImage = pi.MainImage,
-                Width = pi.Width,
-                Height = pi.Height  
-            })
-            .ToList()
+            ProductImages = new ProductImageMapper().Map(src.ProductImages).ToList()
         };
     }
 }

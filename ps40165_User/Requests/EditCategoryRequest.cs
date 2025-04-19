@@ -1,9 +1,7 @@
-﻿namespace ps40165_User.Models;
+﻿namespace ps40165_User.Requests;
 
-public class Category
+public class EditCategoryRequest
 {
-    public int CategoryId { get; set; }
-
     public string Name { get; set; } = string.Empty;
 
     public string Alias { get; set; } = string.Empty;

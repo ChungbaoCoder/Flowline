@@ -1,4 +1,6 @@
-﻿namespace ps40165_Main.Commands;
+﻿using ps40165_Main.Models;
+
+namespace ps40165_Main.Commands;
 
 public class AddProductCommand
 {
@@ -17,6 +19,8 @@ public class AddProductCommand
     public decimal Price { get; set; }
 
     public bool DisableBuyButton { get; set; }
+
+    public List<ProductImage> ProductImages { get; set; } = new List<ProductImage>();
 }
 
 public class EditProductCommand

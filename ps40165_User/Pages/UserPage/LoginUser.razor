@@ -1,4 +1,5 @@
 ﻿@page "/user/login"
+@layout AuthLayout
 
 @inject AuthService _svc
 @inject IJSRuntime _js
@@ -13,6 +14,8 @@
 
 <EditForm Model="@request" OnValidSubmit="HandleValidSubmit" OnInvalidSubmit="HandleInvalidSubmit">
     <DataAnnotationsValidator />
+
+    <h3>Đăng nhập người dùng</h3>
 
     <div class="form-group">
 

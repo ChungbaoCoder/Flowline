@@ -21,6 +21,26 @@
         .custom-hover:hover {
             background-color: #f0f0f0;
         }
+
+        .image-modal-overlay {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100vw;
+            height: 100vh;
+            background-color: rgba(0, 0, 0, 0.8);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            z-index: 1050;
+        }
+
+        .modal-image {
+            max-width: 90%;
+            max-height: 90%;
+            box-shadow: 0 0 15px rgba(255, 255, 255, 0.3);
+            border-radius: 8px;
+        }
     </style>
 
 </head>
@@ -39,19 +59,14 @@
         <a href="." class="reload">Reload</a>
         <span class="dismiss">🗙</span>
     </div>
+
     <script src="_content/Microsoft.AspNetCore.Components.WebAssembly.Authentication/AuthenticationService.js"></script>
     <script src="_framework/blazor.webassembly.js"></script>
     <script src="lib/bootstrap/dist/js/bootstrap.bundle.min.js"></script>
-    <script>
-        function showSuccessToast() {
-            var toastEl = document.getElementById('successToast');
-            var toast = new bootstrap.Toast(toastEl, {
-                animation: true,
-                delay: 5000
-            });
-            toast.show();
-        }
-    </script>
+
+    <script src="js/toast.js"></script>
+    <script src="js/cart.js"></script>
+    <script src="js/image-utils.js"></script>
 </body>
 
 </html>

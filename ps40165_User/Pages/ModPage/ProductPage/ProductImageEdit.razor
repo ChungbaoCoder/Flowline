@@ -1,0 +1,169 @@
+﻿@inject IJSRuntime _js
+@inject ProductImageService _svc
+
+<div class="d-flex flex-wrap gap-3">
+
+    @foreach (var image in productImages)
+    {
+        <div class="card" style="width: 200px;">
+
+            <img src="@($"https://localhost:7036/{image.ImagePath}")" class="card-img-top" style="height:150px; object-fit:cover; cursor:pointer;" @onclick="() => ShowImageModal(image.ImagePath)" />
+
+            <div class="card-body">
+                <p class="card-text m-0">Ảnh chính: @(image.MainImage ? "Đang làm ảnh chính" : "Không")</p>
+                <p class="card-text m-0">Chiều cao: @image.Height px</p>
+                <p class="card-text m-0">Chiều rộng: @image.Width px</p>
+            </div>
+
+        </div>
+    }
+
+    <div class="card d-flex align-items-center justify-content-center" style="width: 200px; height: 250px; cursor: pointer; border: 2px dashed #ccc;" @onclick="OpenUploadModal">  
+        <div class="text-center text-muted">
+
+            <i class="bi bi-plus-circle" style="font-size: 2rem;"></i>
+            <div>Add Image</div>
+
+        </div>
+    </div>
+</div>
+
+@if (showModal)
+{
+    <div class="image-modal-overlay" @onclick="CloseModal">
+        <img src="@modalImageSrc" class="modal-image" />
+    </div>
+}
+
+@if (showUploadModal)
+{
+    <div class="modal fade show d-block" tabindex="-1" style="background: rgba(0,0,0,0.5);">
+        <div class="modal-dialog">
+
+            <div class="modal-content">
+
+                <div class="modal-header">
+                    <h5 class="modal-title">Upload Product Image</h5>
+                    <button type="button" class="btn-close" @onclick="CloseUploadModal"></button>
+                </div>
+
+                <div class="modal-body">
+
+                    <InputFile id="imageInput" OnChange="HandleFileSelected" />
+
+                    <div class="form-check mt-2">
+                        <InputCheckbox @bind-Value="uploadModel.MainImage" class="form-check-input" />
+                        <label class="form-check-label">Main Image</label>
+                    </div>
+
+                    <InputNumber @bind-Value="uploadModel.Height" placeholder="Height" class="form-control mt-2" disabled />
+                    <InputNumber @bind-Value="uploadModel.Width" placeholder="Width" class="form-control mt-2" disabled />
+
+                </div>
+
+                <div class="modal-footer">
+                    <button class="btn btn-secondary" @onclick="CloseUploadModal">Cancel</button>
+                    <button class="btn btn-primary" @onclick="UploadImageAsync">Upload</button>
+                </div>
+
+            </div>
+
+        </div>
+    </div>
+}
+
+@code {
+    [Parameter]
+    public List<ProductImage> productImages { get; set; } = new List<ProductImage>();
+
+    [Parameter]
+    public int productId { get; set; }
+
+    private IBrowserFile? selectedFile;
+
+    private ProductImage uploadModel = new();
+
+    private class ImageDimensions
+    {
+        public int Width { get; set; }
+        public int Height { get; set; }
+    }
+
+    private async Task HandleFileSelected(InputFileChangeEventArgs e)
+    {
+        selectedFile = e.File;
+
+        try
+        {
+            var dimensions = await _js.InvokeAsync<ImageDimensions>("getImageDimensions", "imageInput");
+            uploadModel.Width = dimensions.Width;
+            uploadModel.Height = dimensions.Height;
+        }
+        catch (Exception ex)
+        {
+            Console.WriteLine($"Error getting image dimensions: {ex.Message}");
+        }
+    }
+
+    private async Task UploadImageAsync()
+    {
+        if (selectedFile is null)
+        {
+            Console.WriteLine("No file selected");
+            return;
+        }
+
+        var content = new MultipartFormDataContent();
+        var stream = selectedFile.OpenReadStream(maxAllowedSize: 5 * 1024 * 1024);
+        content.Add(new StreamContent(stream), "file", selectedFile.Name);
+
+        // Add other form data
+        content.Add(new StringContent(productId.ToString()), "ProductId");
+        content.Add(new StringContent(uploadModel.MainImage.ToString()), "MainImage");
+        content.Add(new StringContent(uploadModel.Height?.ToString() ?? ""), "Height");
+        content.Add(new StringContent(uploadModel.Width?.ToString() ?? ""), "Width");
+
+        var uploadedImage = await _svc.PostImage(content);
+
+        if (uploadedImage.IsSuccess)
+        {
+            productImages = uploadedImage.Data;
+            StateHasChanged();
+        }
+
+        CloseUploadModal();
+    }
+}
+
+@code {
+    private bool showModal = false;
+    private string? modalImageSrc;
+
+    private void ShowImageModal(string imagePath)
+    {
+        modalImageSrc = $"https://localhost:7036/{imagePath}";
+        showModal = true;
+    }
+
+    private void CloseModal()
+    {
+        showModal = false;
+        modalImageSrc = null;
+    }
+}
+
+@code {
+    private bool showUploadModal = false;
+
+    private void OpenUploadModal()
+    {
+        uploadModel = new ProductImage();
+        selectedFile = null;
+        showUploadModal = true;
+    }
+
+    private void CloseUploadModal()
+    {
+        showUploadModal = false;
+    }
+}

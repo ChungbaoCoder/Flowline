@@ -1,6 +1,8 @@
 ﻿@inject IJSRuntime _js
 @inject ProductService _svc
 
+@attribute [Authorize(Roles = "Admin, Moderator")]
+
 <table class="table">
     <caption>
         <div class="bg-light">
@@ -90,7 +92,7 @@
 
     private void AddToOrder(Product product)
     {
-        var found = orderItems.FirstOrDefault(oi => oi.ProductId == product.Id);
+        var found = orderItems.FirstOrDefault(oi => oi.ProductId == product.ProductId);
 
         if (found is not null)
         {
@@ -100,7 +102,7 @@
         {
             orderItems.Add(new OrderItem
             {
-                ProductId = product.Id,
+                ProductId = product.ProductId,
                 SKU = product.SKU,
                 Name = product.Name,
                 ImagePath = product.GetMainImage,

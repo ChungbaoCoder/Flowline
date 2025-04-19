@@ -5,6 +5,7 @@ using ps40165_Main.Database;
 using ps40165_Main.Database.DbResponse;
 using ps40165_Main.Database.DbResponse.ErrorDoc;
 using ps40165_Main.Dtos;
+using ps40165_Main.Mapper.ModelToDto;
 using ps40165_Main.Models;
 
 namespace ps40165_Main.Services;
@@ -22,6 +23,60 @@ public class AccountService
         _hasher = hasher;
         _userManager = userManager;
         _jwt = jwt;
+    }
+
+    public async Task<IDbResponse<PaginatedList<AccountDto>>> GetListAccounts(QueryPageCommand request)
+    {
+        int pageNumber = request.PageNumber < 1 ? 1 : request.PageNumber;
+        int pageSize = request.PageSize < 1 ? 10 : request.PageSize;
+
+        var query = _context.Accounts
+            .AsNoTracking()
+            .AsQueryable();
+
+        if (!string.IsNullOrWhiteSpace(request.SearchTerm))
+        {
+            var keyword = $"%{request.SearchTerm?.Trim()}%";
+
+            query = query.Where(c =>
+                EF.Functions.Like(c.Name, keyword) ||
+                EF.Functions.Like(c.Email, keyword) ||
+                EF.Functions.Like(c.PhoneNumber, keyword));
+        }
+
+        var accounts = await query
+            .OrderBy(a => a.Id)
+            .Skip((pageNumber - 1) * pageSize)
+            .Take(pageSize)
+            .Select(a => new Account
+            {
+                Id = a.Id,
+                Name = a.Name,
+                Email = a.Email,
+                PhoneNumber = a.PhoneNumber,
+                GoogleUserId = a.GoogleUserId,
+                LastLogin = a.LastLogin,
+                CreatedOnUtc = a.CreatedOnUtc,
+                UpdatedOnUtc = a.UpdatedOnUtc
+            })
+            .ToListAsync();
+
+        if (accounts.Count < 1)
+        {
+            return DbResponse<PaginatedList<AccountDto>>.Failure(new AccountError());
+        }
+
+        int totalCount = await query.CountAsync();
+        int totalPages = (int)Math.Ceiling(totalCount / (double)pageSize);
+
+        List<AccountDto> data = new List<AccountDto>();
+
+        foreach (Account account in accounts)
+            data.Add(new AccountMapper().Map(account));
+
+        PaginatedList<AccountDto> meta = new PaginatedList<AccountDto>(data, pageNumber, pageSize, totalCount);
+
+        return DbResponse<PaginatedList<AccountDto>>.GiveBack(meta);
     }
 
     public async Task<IDbResponse<TokenDto>> RegisterUser(RegisterUserCommand request)

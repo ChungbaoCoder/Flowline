@@ -23,16 +23,30 @@ public class ProductService
         int pageNumber = request.PageNumber < 1 ? 1 : request.PageNumber;
         int pageSize = request.PageSize < 1 ? 10 : request.PageSize;
 
-        var products = await _context.Products
+        var query = _context.Products
             .AsNoTracking()
+            .Include(p => p.Category)
+            .Include(p => p.ProductImages)
+            .AsQueryable();
+
+        if (!string.IsNullOrWhiteSpace(request.SearchTerm))
+        {
+            var keyword = $"%{request.SearchTerm?.Trim()}%";
+
+            query = query.Where(p =>
+                EF.Functions.Like(p.Name, keyword) ||
+                EF.Functions.Like(p.Description, keyword) ||
+                EF.Functions.Like(p.Category.Name, keyword));
+        }
+
+        var products = await query
             .OrderBy(p => p.Id)
             .Skip((pageNumber - 1) * pageSize)
             .Take(pageSize)
-            .Include(p => p.Category)
-            .Include(p => p.ProductImages)
             .Select(p => new Product
             {
                 Id = p.Id,
+                CategoryId = p.CategoryId,
                 SKU = p.SKU,
                 Name = p.Name,
                 Description = p.Description,
@@ -50,7 +64,7 @@ public class ProductService
             return DbResponse<PaginatedList<ProductDto>>.Failure(new ProductError().NotFound());
         }
 
-        int totalCount = await _context.Products.CountAsync();
+        int totalCount = await query.CountAsync();
         int totalPages = (int)Math.Ceiling(totalCount / (double)pageSize);
 
         List<ProductDto> data = new List<ProductDto>();
@@ -73,6 +87,7 @@ public class ProductService
             .Select(p => new Product
             {
                 Id = p.Id,
+                CategoryId = p.CategoryId,
                 SKU = p.SKU,
                 Name = p.Name,
                 Description = p.Description,
@@ -104,7 +119,8 @@ public class ProductService
             UnderDescription = request.UnderDescription,
             StockLevel = request.StockLevel,
             Price = request.Price,
-            DisableBuyButton = request.DisableBuyButton
+            DisableBuyButton = request.DisableBuyButton,
+            ProductImages = request.ProductImages   
         };
 
         await _context.Products.AddAsync(product);
@@ -117,7 +133,7 @@ public class ProductService
 
     public async Task<IDbResponse<ProductDto>> EditProduct(int productId, EditProductCommand request)
     {
-        var found = await _context.Products.FindAsync(productId);
+        var found = await _context.Products.Include(p => p.ProductImages).FirstOrDefaultAsync(p => p.Id == productId);
 
         if (found is null)
             return DbResponse<ProductDto>.Failure(new ProductError().NotFound());

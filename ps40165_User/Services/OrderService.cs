@@ -1,4 +1,5 @@
 ﻿using ps40165_User.Models;
+using ps40165_User.Requests;
 using System.Net.Http.Json;
 
 namespace ps40165_User.Services;
@@ -12,23 +13,41 @@ public class OrderService
         _client = client;
     }
 
-    public async Task<List<Order>> GetListAsync(int currentPage, int pageSize)
+    public async Task<Response<PaginatedList<Order>>> GetListAsync(int currentPage, int pageSize, string? searchText)
     {
         try
         {
-            var response = await _client.GetFromJsonAsync<Response<PaginatedList<Order>>>($"Orders?pageNumber={currentPage}&pageSize={pageSize}");
+            var response = await _client.GetFromJsonAsync<Response<PaginatedList<Order>>>($"Orders?pageNumber={currentPage}&pageSize={pageSize}&searchTerm={searchText}");
+            return response;
+        }
+        catch
+        {
 
-            if (response.IsSuccess)
+        }
+        return new Response<PaginatedList<Order>>();
+    }
+
+    public async Task<Response<Order>> MakeOrder(MakeOrderRequest request)
+    {
+        try
+        {
+            var response = await _client.PostAsJsonAsync($"Orders", request);
+
+            if (response.IsSuccessStatusCode)
             {
-                if (response.Data is not null)
-                    return response.Data.Items;
+                var result = await response.Content.ReadFromJsonAsync<Response<Order>>();
+
+                if (result is not null && result.IsSuccess)
+                {
+                    return result;
+                }
             }
         }
         catch
         {
 
         }
-        return new List<Order>();
+        return new Response<Order>();
     }
 
     public async Task<Response<Order>> DeleteOrder(int orderId)

@@ -12,6 +12,7 @@ builder.Services.AddScoped(sp => new HttpClient { BaseAddress = new Uri("https:/
 
 builder.Services.AddScoped<AuthService>();
 
+
 // --- Authentication/Authorization Setup ---
 builder.Services.AddOptions(); // Required for AddAuthorizationCore
 builder.Services.AddAuthorizationCore(options => {
@@ -26,6 +27,11 @@ builder.Services.AddAuthorizationCore(options => {
 builder.Services.AddScoped<AuthenticationStateProvider, JwtAuthStateProvider>();
 // --- End Authentication/Authorization Setup ---
 
+builder.Services.AddScoped<CategoryService>();
 builder.Services.AddScoped<ProductService>();
+builder.Services.AddScoped<ProductImageService>();
+builder.Services.AddScoped<OrderService>();
+builder.Services.AddScoped<CartService>();
+builder.Services.AddScoped<AccountService>();
 
 await builder.Build().RunAsync();

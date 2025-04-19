@@ -2,7 +2,9 @@
 
 public class QueryPageCommand
 {
-    public int PageNumber { get; init; }
+    public int PageNumber { get; set; }
 
-    public int PageSize { get; init; }
+    public int PageSize { get; set; }
+
+    public string? SearchTerm { get; set; }
 }

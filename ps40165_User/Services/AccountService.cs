@@ -12,23 +12,18 @@ public class AccountService
         _client = client;
     }
 
-    public async Task<List<Account>> GetListAsync(int currentPage, int pageSize)
+    public async Task<Response<PaginatedList<Account>>> GetListAsync(int currentPage, int pageSize, string? searchText)
     {
         try
         {
-            var response = await _client.GetFromJsonAsync<Response<PaginatedList<Account>>>($"Accounts?pageNumber={currentPage}&pageSize={pageSize}");
-
-            if (response.IsSuccess)
-            {
-                if (response.Data is not null)
-                    return response.Data.Items;
-            }
+            var response = await _client.GetFromJsonAsync<Response<PaginatedList<Account>>>($"Accounts?pageNumber={currentPage}&pageSize={pageSize}&searchTerm={searchText}");
+            return response;
         }
         catch
         {
 
         }
-        return new List<Account>();
+        return new Response<PaginatedList<Account>>();
     }
 
     public async Task<Account> GetAccountById(int id)

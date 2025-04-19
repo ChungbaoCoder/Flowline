@@ -1,6 +1,8 @@
 ﻿@page "/accounts/manage"
 @layout StoreLayout
 
+@attribute [Authorize(Roles = "Admin")]
+
 @inject NavigationManager _nav
 @inject AccountService _svc
 
@@ -10,10 +12,10 @@
 
     <h5 id="Table-title">Quản lí tài khoản</h5>
 
-    <form class="input-group w-50" action="Post">
-        <input type="text" class="form-control" placeholder="Find by SKU, GTIN or MPN">
-        <span class="input-group-text">🔍</span>
-    </form>
+    <div class="input-group w-25">
+        <input type="text" class="form-control" placeholder="Tìm kiếm ở đây" @bind="searchText">
+        <button class="input-group-text" @onclick="Searching">🔍</button>
+    </div>
 
 </div>
 
@@ -43,14 +45,7 @@
             @if (!accounts.Any())
             {
                 <tr>
-                    <td colspan="8">
-                    </td>
-                    <td class="text-center align-middle">
-                        <div class="d-flex gap-1 m-0">
-                            <button type="button" class="btn btn-sm p-0">✏️</button>
-                            <button type="button" class="btn btn-sm p-0">🗑️</button>
-                        </div>
-                    </td>
+                    <td colspan="8"></td>
                 </tr>
             }
             else
@@ -58,14 +53,14 @@
                 @foreach (var account in accounts)
                 {
                     <tr>
-                        <td>@account.Name</td>
-                        <td>@account.Email</td>
-                        <td>@account.PhoneNumber</td>
-                        <td>@account.GoogleUserId</td>
-                        <td>@account.LastLogin</td>
-                        <td>@account.CreatedOnUtc</td>
-                        <td>@account.UpdatedOnUtc</td>
-                        <td class="text-center align-middle">
+                        <td class="align-middle text-center">@account.Name</td>
+                        <td class="align-middle text-center">@account.Email</td>
+                        <td class="align-middle text-center">@account.PhoneNumber</td>
+                        <td class="align-middle text-center">@account.GoogleUserId</td>
+                        <td class="align-middle text-center">@account.LastLogin</td>
+                        <td class="align-middle text-center">@account.CreatedOnUtc</td>
+                        <td class="align-middle text-center">@account.UpdatedOnUtc</td>
+                        <td class="align-middle text-center">
                             <div class="d-flex gap-1 m-0">
                                 <button type="button" class="btn btn-sm p-0">✏️</button>
                                 <button type="button" class="btn btn-sm p-0">🗑️</button>
@@ -80,18 +75,19 @@
         <tfoot class="sticky-bottom table-light">
             <tr>
 
-                <td colspan="8">
+                <td colspan="7">
                     <div class="d-flex justify-content-between align-items-center">
 
-                        <ul class="d-flex m-0 list-unstyled">
-                            <li><button type="button" class="btn btn-sm btn-light">↻</button></li>
+                        <ul class="d-flex m-0 gap-2 list-unstyled">
+                            <li><button type="button" class="btn btn-sm btn-light" @onclick="PopulateList">↻</button></li>
                             <li><button type="button" class="btn btn-sm btn-light" @onclick="First">&lt;&lt;</button></li>
                             <li><button type="button" class="btn btn-sm btn-light" @onclick="PreviousPage">&lt;</button></li>
 
                             @for (int i = 1; i <= totalPage; i++)
                             {
+                                var pageIndex = i;
                                 <li>
-                                    <button @onclick="() => ChangePage(i)" class="@(currentPage == i ? "fw-bold" : "") btn btn-sm btn-light">@i</button>
+                                    <button @onclick="() => ChangePage(pageIndex)" class="@(pageNumber == i ? "fw-bold" : "") btn btn-sm btn-light">@i</button>
                                 </li>
                             }
 
@@ -125,64 +121,84 @@
 @code {
     private List<Account> accounts = new List<Account>();
 
-    private int currentPage = 1;
-
-    private int pageSize = 25;
-
-    private int totalPage = 1;
-
-    private int totalItems => accounts.Count();
-
-    private decimal bulletNumber => totalPage;
+    private string? searchText;
 
     protected override async Task OnInitializedAsync()
     {
-        accounts = await _svc.GetListAsync(currentPage, pageSize);
+        await PopulateList();
     }
+
+    private async Task PopulateList()
+    {
+        var result = await _svc.GetListAsync(pageNumber, pageSize, searchText);
+
+        if (result.IsSuccess && result.Data is not null)
+        {
+            accounts = result.Data.Items;
+            totalPage = result.Data.TotalPages;
+            totalItems = result.Data.TotalCount;
+        }
+    }
+
+    private async Task Searching()
+    {
+        await PopulateList();
+    }
+
+    private void GoToEdit(int id)
+    {
+        _nav.NavigateTo($"/accounts/edit/{id}");
+    }
+}
+
+@code {
+    private int pageNumber = 1;
+
+    private int pageSize = 25;
+
+    private int totalItems;
+
+    private int totalPage;
 
     private async Task ChangePage(int page)
     {
-        currentPage = page;
-        accounts = await _svc.GetListAsync(currentPage, pageSize);
+        pageNumber = page;
+        await PopulateList();
     }
 
     private async Task NextPage()
     {
-        if (currentPage < totalPage)
+        if (pageNumber < totalPage)
         {
-            currentPage++;
-            accounts = await _svc.GetListAsync(currentPage, pageSize);
+            pageNumber++;
+            await PopulateList();
         }
     }
 
     private async Task PreviousPage()
     {
-        if (currentPage > 1)
+        if (pageNumber > 1)
         {
-            currentPage--;
-            accounts = await _svc.GetListAsync(currentPage, pageSize);
+            pageNumber--;
+            await PopulateList();
         }
     }
 
     public async Task First()
     {
-        currentPage = 1;
-        accounts = await _svc.GetListAsync(currentPage, pageSize);
+        pageNumber = 1;
+        await PopulateList();
     }
 
     public async Task Last()
     {
-        currentPage = 1;
-        accounts = await _svc.GetListAsync(currentPage, pageSize);
+        pageNumber = totalPage;
+        await PopulateList();
     }
 
     private async Task SizeDisplayChanged(ChangeEventArgs e)
     {
         pageSize = int.Parse(e.Value.ToString());
-        accounts = await _svc.GetListAsync(currentPage, pageSize);
+        await PopulateList();
     }
-}
-
-@code {
-
 }

@@ -1,8 +1,10 @@
 ﻿@page "/mod/login"
+@layout AuthLayout
 
-@inject AuthService _svc
 @inject IJSRuntime _js
 @inject NavigationManager _nav
+@inject AuthService _svc
+@inject AuthenticationStateProvider _auth
 
 @if (error)
 {
@@ -13,6 +15,8 @@
 
 <EditForm Model="@request" OnValidSubmit="HandleValidSubmit" OnInvalidSubmit="HandleInvalidSubmit">
     <DataAnnotationsValidator />
+
+    <h3>Đăng nhập nhân viên</h3>
 
     <div class="form-group">
 
@@ -85,10 +89,22 @@
         }
 
         error = false;
-        showToast = true;
 
-        await Task.Delay(500);
-        await _js.InvokeVoidAsync("showSuccessToast");
+        var result = await _svc.LoginUser("Auth/employee", request);
+
+        if (result.IsSuccess && result.Data is not null)
+        {
+            var jwt = result.Data.Token;
+
+            if (_auth is JwtAuthStateProvider jwtAuthProvider)
+            {
+                await jwtAuthProvider.MarkUserAsAuthenticated(jwt);
+            }
+
+            showToast = true;
+            await Task.Delay(2000);
+            _nav.NavigateTo("/");
+        }
     }
 
     private void HandleInvalidSubmit()

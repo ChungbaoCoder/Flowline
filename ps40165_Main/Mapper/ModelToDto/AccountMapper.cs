@@ -14,7 +14,9 @@ public class AccountMapper : IMapper<Account, AccountDto>
             PhoneNumber = src.PhoneNumber,
             PasswordHash = src.PasswordHash,
             GoogleUserId = src.GoogleUserId,
-            LastLogin = src.LastLogin
+            LastLogin = src.LastLogin,
+            CreatedOnUtc = src.CreatedOnUtc,
+            UpdatedOnUtc = src.UpdatedOnUtc
         };
     }
 }

@@ -1,0 +1,76 @@
+﻿@page "/user/cart"
+@layout StoreLayout
+
+@inject IJSRuntime _js
+@inject NavigationManager _nav
+@inject CartService _svc
+
+<div class="row">
+
+    <div class="col-9">
+        <table class="table">
+
+            <thead class="table-light">
+                <tr>
+
+                    <th>Hình ảnh</th>
+                    <th>Tên sản phẩm</th>
+                    <th>Số lượng mua</th>
+                    <th>Giá</th>
+
+                </tr>
+            </thead>
+
+            <tbody>
+
+                @foreach (var item in request)
+                {
+                    <tr>
+                        <td style="width: 125px">
+                            <img src="@($"https://localhost:7036/{item.GetMainImage}")" class="card-img-top" style="height:50px; width:100px; object-fit:cover;" />
+                        </td>
+                        <td class="align-middle text-center">@item.Name</td>
+                        <td class="align-middle text-center">@item.StockLevel</td>
+                        <td class="align-middle text-center">@item.Price</td>
+                    </tr>
+                }
+
+            </tbody>
+
+        </table>
+    </div>
+
+    <aside class="col-3">
+        <div class="card">
+
+            <div class="card-header bg-light">
+                <h5 class="mb-0">Tóm tắt đơn hàng</h5>
+            </div>
+
+            <div class="card-body">
+
+                <p><strong>Tổng số lượng:</strong> @request.Sum(item => item.StockLevel)</p>
+                <p><strong>Tổng tiền:</strong> @request.Sum(item => item.Price * item.StockLevel).ToString("C")</p>
+                <hr />
+                <button class="btn btn-primary w-100" type="submit" @onclick="ToCheckout">Đặt hàng</button>
+
+            </div>
+
+        </div>
+    </aside>
+
+</div>
+
+@code {
+    private List<Product> request = new List<Product>();
+
+    protected override async Task OnInitializedAsync()
+    {
+        request = await _svc.GetCartAsync();
+    }
+
+    private void ToCheckout()
+    {
+        _nav.NavigateTo("/user/cart/checkout");
+    }
+}

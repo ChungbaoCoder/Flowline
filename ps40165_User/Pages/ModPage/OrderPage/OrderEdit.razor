@@ -1,6 +1,8 @@
 ﻿@page "/orders/edit/{id:int}"
 @layout StoreLayout
 
+@attribute [Authorize(Roles = "Admin, Moderator")]
+
 @inject IJSRuntime _js
 @inject NavigationManager _nav
 

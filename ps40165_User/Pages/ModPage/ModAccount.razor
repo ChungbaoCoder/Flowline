@@ -1,9 +1,64 @@
 ﻿@page "/mod/account"
-@attribute [Authorize(Policy = "Admin")]
 @layout AccountLayout
 
-<h3>ModPage</h3>
+@attribute [Authorize(Roles = "Admin, Moderator")]
+
+@using System.Security.Claims
+
+@inject AuthenticationStateProvider _auth
+@inject AccountService _svc
+
+<h2 class="mb-4">👤 Thông tin tài khoản</h2>
+
+<div class="card shadow-sm">
+    <div class="card-body">
+
+        <div class="row mb-3">
+            <div class="col-md-4 text-center">
+                <img src="" alt="Avatar" class="rounded-circle img-thumbnail" style="width: 150px;" />
+            </div>
+
+            <div class="col-md-8">
+                <h4>@account.Name</h4>
+                <p class="text-muted">@account.Email</p>
+            </div>
+        </div>
+
+        <hr />
+
+        <h5>Thông tin chi tiết</h5>
+
+        <ul class="list-unstyled">
+            <li><strong>Số điện thoại:</strong> @account.PhoneNumber</li>
+            <li><strong>Ngày tham gia:</strong> @account.CreatedOnUtc.ToString("dd/MM/yyyy")</li>
+        </ul>
+
+        <div class="mt-4">
+            <button class="btn btn-primary me-2">Chỉnh sửa</button>
+            <button class="btn btn-outline-danger">Đăng xuất</button>
+        </div>
+
+    </div>
+</div>
 
 @code {
+    private Account account = new Account();
 
+    protected override async Task OnInitializedAsync()
+    {
+        var authState = await _auth.GetAuthenticationStateAsync();
+        var user = authState.User;
+
+        if (user.Identity?.IsAuthenticated ?? false)
+        {
+            var check = int.TryParse(user.FindFirst(c => c.Type == ClaimTypes.NameIdentifier)?.Value, out _);
+
+            if (check)
+            {
+                account.Id = int.Parse(user.FindFirst(c => c.Type == ClaimTypes.NameIdentifier)?.Value);
+
+                account = await _svc.GetAccountById(account.Id);
+            }
+        }
+    }
 }

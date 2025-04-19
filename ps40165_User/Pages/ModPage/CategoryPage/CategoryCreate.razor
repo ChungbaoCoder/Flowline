@@ -1,4 +1,4 @@
-﻿@page "/categories/edit/{id:int}"
+﻿@page "/categories/create"
 @layout StoreLayout
 
 @attribute [Authorize(Roles = "Admin, Moderator")]
@@ -10,9 +10,9 @@
 <div class="d-flex justify-content-between align-items-center sticky-top">
 
     <div>
-        <NavLink class="nav-link" href="/categories/manage" activeClass="active">⬅</NavLink>
+        <NavLink class="nav-link" href="/categorys/manage" activeClass="active">⬅</NavLink>
 
-        <h5 class="d-inline">Chỉnh sửa loại sản phẩm - @id</h5>
+        <h5 class="d-inline">Tạo loại sản phẩm</h5>
     </div>
 
     <div>
@@ -74,25 +74,7 @@
 <ShowToast showToast="@showToast" message="@message"></ShowToast>
 
 @code {
-    [Parameter]
-    public int id { get; set; }
-
     private Category category = new Category();
-
-    protected override async Task OnInitializedAsync()
-    {
-        await LoadCategory();
-    }
-
-    private async Task LoadCategory()
-    {
-        var result = await _svc.GetById(id);
-
-        if (result.IsSuccess && result.Data is not null)
-        {
-            category = result.Data;
-        }
-    }
 }
 
 @code {
@@ -115,20 +97,16 @@
         error = false;
         showToast = true;
 
-        EditCategoryRequest request = new EditCategoryRequest
-        {
-            Name = category.Name,
-            Description = category.Description,
-            Alias = category.Alias
-        };
+        AddCategoryRequest request = new AddCategoryRequest
+            {
+                Name = category.Name,
+                Description = category.Description,
+                Alias = category.Alias
+            };
 
-        var response = await _svc.PutCategory(id, request);
+        await _svc.PostCategory(request);
 
-        if (response.IsSuccess)
-        {
-            category = response.Data;
-            await _js.InvokeVoidAsync("showSuccessToast");
-        }
+        await _js.InvokeVoidAsync("showSuccessToast");
     }
 
     private void HandleInvalidSubmit()
@@ -136,3 +114,4 @@
         error = true;
     }
 }
+

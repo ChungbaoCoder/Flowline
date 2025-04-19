@@ -9,16 +9,15 @@ namespace ps40165_Main.Controllers;
 [Authorize]
 [Route("api/[controller]")]
 [ApiController]
-public class OrderController : ControllerBase
+public class OrdersController : ControllerBase
 {
     private readonly OrderService _order;
 
-    public OrderController(OrderService order)
+    public OrdersController(OrderService order)
     {
         _order = order;
     }
 
-    [AllowAnonymous]
     [HttpGet]
     public async Task<IActionResult> GetOrders ([FromQuery] QueryPageCommand request)
     {

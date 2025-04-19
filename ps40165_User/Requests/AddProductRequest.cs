@@ -1,9 +1,9 @@
-﻿namespace ps40165_User.Models;
+﻿using ps40165_User.Models;
 
-public class Product
+namespace ps40165_User.Requests;
+
+public class AddProductRequest
 {
-    public int ProductId { get; set; }
-
     public int CategoryId { get; set; }
 
     public string? SKU { get; set; }
@@ -21,8 +21,4 @@ public class Product
     public bool DisableBuyButton { get; set; }
 
     public List<ProductImage> ProductImages { get; set; } = new List<ProductImage>();
-
-    public string GetMainImage => ProductImages.FirstOrDefault(pi => pi.MainImage)?.ImagePath 
-        ?? ProductImages.FirstOrDefault()?.ImagePath 
-        ?? "";
 }

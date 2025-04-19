@@ -10,24 +10,17 @@ builder.RootComponents.Add<HeadOutlet>("head::after");
 
 builder.Services.AddScoped(sp => new HttpClient { BaseAddress = new Uri("https://localhost:7036/api/") });
 
-builder.Services.AddScoped<AuthService>();
-
-
-// --- Authentication/Authorization Setup ---
-builder.Services.AddOptions(); // Required for AddAuthorizationCore
+builder.Services.AddOptions();
 builder.Services.AddAuthorizationCore(options => {
-    // Define policies (optional but good practice)
     options.AddPolicy("Admin", policy => policy.RequireRole("Admin"));
     options.AddPolicy("Mod", policy => policy.RequireRole("Moderator"));
-    // Add other policies if needed (e.g., "RequireUserRole", "SpecificPermission")
 });
 
-// Register your custom AuthenticationStateProvider
-// Use AddScoped for WASM
 builder.Services.AddScoped<AuthenticationStateProvider, JwtAuthStateProvider>();
-// --- End Authentication/Authorization Setup ---
 
+builder.Services.AddScoped<AuthService>();
 builder.Services.AddScoped<CategoryService>();
+builder.Services.AddScoped<JwtAuthStateProvider>();
 builder.Services.AddScoped<ProductService>();
 builder.Services.AddScoped<ProductImageService>();
 builder.Services.AddScoped<OrderService>();

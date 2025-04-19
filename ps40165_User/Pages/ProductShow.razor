@@ -1,10 +1,10 @@
-﻿@page "/products"
+﻿@page "/"
 @layout StoreLayout
+
+@attribute [AllowAnonymous]
 
 @inject ProductService _svc
 @inject CartService CartService
-
-<h3 class="mb-4">Products</h3>
 
 @if (isLoading)
 {

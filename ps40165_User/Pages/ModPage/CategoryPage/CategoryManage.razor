@@ -3,6 +3,7 @@
 
 @attribute [Authorize(Roles = "Admin, Moderator")]
 
+@inject IJSRuntime _js
 @inject NavigationManager _nav
 @inject CategoryService _svc
 
@@ -55,7 +56,7 @@
                         <td class="align-middle text-center">
                             <div class="d-flex gap-1 m-0">
                                 <button type="button" class="btn btn-sm p-0" @onclick="() => GoToEdit(category.CategoryId)">✏️</button>
-                                <button type="button" class="btn btn-sm p-0">🗑️</button>
+                                <button type="button" class="btn btn-sm p-0" @onclick="() => ConfirmAndRemove(category.CategoryId)">🗑️</button>
                             </div>
                         </td>
                     </tr>
@@ -140,6 +141,32 @@
     private void GoToEdit(int id)
     {
         _nav.NavigateTo($"/categories/edit/{id}");
+    }
+
+    private async Task ConfirmAndRemove(int id)
+    {
+        if (await _js.InvokeAsync<bool>("confirm", $"Bạn có muốn xóa category #{id}?"))
+        {
+            await RemoveCategory(id);
+        }
+    }
+
+    private async Task RemoveCategory(int id)
+    {
+        var result = await _svc.DeleteCategory(id);
+
+        if (result.IsSuccess)
+        {
+            var categoryToRemove = categories.FirstOrDefault(o => o.CategoryId == id);
+            if (categoryToRemove != null)
+            {
+                categories.Remove(categoryToRemove);
+            }
+        }
+        else
+        {
+
+        }
     }
 }
 

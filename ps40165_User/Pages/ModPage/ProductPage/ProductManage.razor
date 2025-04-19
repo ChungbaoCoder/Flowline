@@ -3,6 +3,7 @@
 
 @attribute [Authorize(Roles = "Admin, Moderator")]
 
+@inject IJSRuntime _js
 @inject NavigationManager _nav
 @inject ProductService _svc
 
@@ -23,7 +24,7 @@
 <NavLink href="/products/create" activeClass="active" class="btn btn-light">+ Thêm mới</NavLink>
 
 <div class="mt-3" style="max-height: 500px; overflow: auto;">
-    <table class="table table-bordered">
+    <table class="table table-bproducted">
 
         <thead class="table-light sticky-top">
             <tr>
@@ -56,7 +57,7 @@
                     <tr>
                         <td class="align-middle text-center">@product.SKU</td>
                         <td class="align-middle text-center">
-                            <img src="@($"https://localhost:7036/{product.GetMainImage}")" alt="productImg" style="width: 80px; height: 80px; object-fit: cover; border-radius: 4px;" />
+                            <img src="@($"https://localhost:7036/{product.GetMainImage}")" alt="productImg" style="width: 80px; height: 80px; object-fit: cover; bproduct-radius: 4px;" />
                         </td>
                         <td class="align-middle text-center">@product.Name</td>
                         <td class="align-middle text-center">@product.Description</td>
@@ -70,7 +71,7 @@
 
                             <div class="d-flex gap-1 m-0">
                                 <button type="button" class="btn btn-sm p-0" @onclick="() => GoToEdit(product.ProductId)">✏️</button>
-                                <button type="button" class="btn btn-sm p-0">🗑️</button>
+                                <button type="button" class="btn btn-sm p-0" @onclick="() => ConfirmAndRemove(product.ProductId)">🗑️</button>
                             </div>
                         </td>
                     </tr>
@@ -155,6 +156,32 @@
     private void GoToEdit(int id)
     {
         _nav.NavigateTo($"/products/edit/{id}");
+    }
+
+    private async Task ConfirmAndRemove(int id)
+    {
+        if (await _js.InvokeAsync<bool>("confirm", $"Bạn có muốn xóa product #{id}?"))
+        {
+            await RemoveProduct(id);
+        }
+    }
+
+    private async Task RemoveProduct(int id)
+    {
+        var result = await _svc.DeleteProduct(id);
+
+        if (result.IsSuccess)
+        {
+            var productToRemove = products.FirstOrDefault(o => o.ProductId == id);
+            if (productToRemove != null)
+            {
+                products.Remove(productToRemove);
+            }
+        }
+        else
+        {
+
+        }
     }
 }
 

@@ -1,6 +1,5 @@
-using Microsoft.AspNetCore.OpenApi;
-using Microsoft.OpenApi.Models;
-using ps40165_Main.Database;
+using ps40165_Main.Features.CategoryFeature;
+using ps40165_Main.Features.ProductFeature;
 using ps40165_Main.SetUp;
 using Scalar.AspNetCore;
 
@@ -8,23 +7,18 @@ var builder = WebApplication.CreateBuilder(args);
 
 //Add servives check SetUp folder to add change
 builder.Services.ConfigureDbContext(builder.Configuration);
-builder.Services.ConfigureServices();
-builder.Services.ConfigureControllers();
+builder.Services.ConfigureHttp();
 builder.Services.ConfigureCors();
 builder.Services.ConfigureAuthentication(builder.Configuration);
 builder.Services.ConfigureEFIdentity();
 
+builder.Services.AddCategory();
+builder.Services.AddProduct();
+
+//Set up open api to use JWT
 builder.Services.AddOpenApi("v1", options => { options.AddDocumentTransformer<BearerSecuritySchemeTransformer>(); });
 
 var app = builder.Build();
-
-//Seed database
-//using (var scope = app.Services.CreateScope())
-//{
-//    var service = scope.ServiceProvider;
-//    await SeedDb.SeedRolesAsync(service);
-//    await SeedDb.SeedAdminUserAsync(service);
-//}
 
 // Configure the HTTP request pipeline.
 if (app.Environment.IsDevelopment())
@@ -43,8 +37,7 @@ app.UseCors();
 app.UseAuthentication();
 app.UseAuthorization();
 
-app.MapControllers();
-
-app.UseStaticFiles();
+app.ApiCategory();
+app.ApiProduct();
 
 app.Run();

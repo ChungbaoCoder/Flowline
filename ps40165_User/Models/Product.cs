@@ -1,28 +1,16 @@
-﻿namespace ps40165_User.Models;
+﻿using ps40165_User.Shared;
 
-public class Product
+namespace ps40165_User.Models;
+
+public class Product : BaseEntity
 {
-    public int ProductId { get; set; }
-
-    public int CategoryId { get; set; }
-
-    public string? SKU { get; set; }
+    public int CategoryId { get;  set; }
 
     public string Name { get; set; } = string.Empty;
 
     public string Description { get; set; } = string.Empty;
 
-    public string UnderDescription { get; set; } = string.Empty;
-
-    public int StockLevel { get; set; }
-
     public decimal Price { get; set; }
 
-    public bool DisableBuyButton { get; set; }
-
-    public List<ProductImage> ProductImages { get; set; } = new List<ProductImage>();
-
-    public string GetMainImage => ProductImages.FirstOrDefault(pi => pi.MainImage)?.ImagePath 
-        ?? ProductImages.FirstOrDefault()?.ImagePath 
-        ?? "";
+    public Category Category { get; set; } = new Category();
 }

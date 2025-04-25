@@ -1,0 +1,49 @@
+﻿@page "/account/login"
+
+<h4>Đăng nhập tài khoản</h4>
+
+<div class="row justify-content-center">
+    <div class="col-md-6">
+
+        <EditForm Model="request" class="py-4" >
+
+            <div class="mb-3 row">
+                <label class="col-sm-3 col-12 col-form-label">Tên người dùng</label>
+                <div class="col-sm-9 p-1">
+                    <InputText class="form-control" type="text" @bind-Value="request.Name"></InputText>
+                </div>
+            </div>
+
+            <div class="mb-3 row">
+                <label class="col-sm-3 col-12 col-form-label">Email</label>
+                <div class="col-sm-9 p-1">
+                    <InputText class="form-control" type="email" @bind-Value="request.Email"></InputText>
+                </div>
+            </div>
+
+            <div class="mb-3 row">
+                <label class="col-sm-3 col-12 col-form-label">Mật khẩu</label>
+                <div class="col-sm-9 p-1">
+                    <InputText class="form-control" type="password" @bind-Value="request.Password"></InputText>
+                </div>
+            </div>
+
+            <div class="d-flex flex-column flex-sm-row offset-0 offset-sm-3">
+                <button type="submit" class="btn btn-dark">Đăng nhập</button>
+            </div>
+
+        </EditForm>
+
+    </div>
+</div>
+
+@code {
+    private LoginUser request = new LoginUser();
+
+    class LoginUser
+    {
+        public string? Name;
+        public string? Email;
+        public string? Password;
+    }
+}

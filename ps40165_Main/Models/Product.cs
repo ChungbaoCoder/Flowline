@@ -1,37 +1,61 @@
 ﻿using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Metadata.Builders;
+using ps40165_Main.Shared;
+using ps40165_Main.Shared.ModelResult;
 
 namespace ps40165_Main.Models;
 
 public class Product : BaseEntity
 {
-    public int CategoryId { get; set; }
+    public int CategoryId { get; private set; }
 
-    public string? SKU { get; set; }
+    public string Name { get; private set; }
 
-    public required string Name { get; set; }
+    public string Description { get; private set; }
 
-    public string Description { get; set; } = string.Empty;
+    public decimal Price { get; private set; }
 
-    public string UnderDescription { get; set; } = string.Empty;
+    public Category Category { get; private set; }
 
-    public int StockLevel { get; set; }
+    public Product() { }
 
-    public decimal Price { get; set; }
+    public Result<Product> UpdateName(string name)
+    {
+        if (String.IsNullOrEmpty(name))
+        {
+            return Result<Product>.Fail("Tên không được để trống");
+        }
 
-    public bool DisableBuyButton { get; set; }
+        Name = name;
+        return Result<Product>.Ok("Cập nhật tên sản phẩm thành công");
+    }
 
-    //Tracking Object Date
-    public DateTime CreatedOnUtc { get; set; }
+    public Result<Product> UpdateDescription(string description)
+    {
+        if (String.IsNullOrEmpty(description))
+        {
+            return Result<Product>.Fail("Nội dung không được để trống");
+        }
 
-    public DateTime UpdatedOnUtc { get; set; }
+        Description = description;
+        return Result<Product>.Ok("Cập nhật nội dung sản phẩm thành công");
+    }
 
-    //RelationShip
-    public Category Category { get; set; }
+    public Result<Product> UpdatePrice(decimal price)
+    {
+        if (price < 1)
+        {
+            return Result<Product>.Fail("Giá không là dưới 0 hoặc số âm");
+        }
 
-    public ICollection<ProductImage> ProductImages { get; set; }
+        if (price > decimal.MaxValue)
+        {
+            return Result<Product>.Fail("Giá không được quá số cho phép");
+        }
 
-    public ICollection<OrderItem> OrderItems { get; set; }
+        Price = price;
+        return Result<Product>.Ok("Cập nhật giá sản phẩm thành công");
+    }
 }
 
 public class ProductMap : IEntityTypeConfiguration<Product>
@@ -40,47 +64,17 @@ public class ProductMap : IEntityTypeConfiguration<Product>
     {
         builder.HasKey(p => p.Id);
 
-        builder.HasIndex(p => p.SKU).IsUnique();
-
-        builder.Property(p => p.SKU)
-            .IsRequired(false)
-            .HasMaxLength(100)
-            .HasColumnType("varchar(100)");
-
         builder.Property(p => p.Name)
-            .IsRequired()
-            .HasMaxLength(150)
-            .HasColumnType("nvarchar(150)");
+           .IsRequired()
+           .HasMaxLength(200)
+           .HasColumnType("nvarchar(200)");
 
         builder.Property(p => p.Description)
             .IsRequired(false)
             .HasMaxLength(300)
             .HasColumnType("nvarchar(300)");
 
-        builder.Property(p => p.UnderDescription)
-            .IsRequired(false)
-            .HasMaxLength(500)
-            .HasColumnType("nvarchar(500)");
-
         builder.Property(p => p.Price)
             .HasPrecision(18, 2);
-
-        builder.Property(p => p.CreatedOnUtc)
-            .HasDefaultValueSql("GETUTCDATE()")
-            .ValueGeneratedOnAdd();
-
-        builder.Property(p => p.UpdatedOnUtc)
-            .HasDefaultValueSql("GETUTCDATE()")
-            .ValueGeneratedOnAddOrUpdate();
-
-        builder.HasMany(p => p.ProductImages)
-            .WithOne(pi => pi.Product)
-            .HasForeignKey(pi => pi.ProductId)
-            .OnDelete(DeleteBehavior.Cascade);
-
-        builder.HasMany(p => p.OrderItems)
-            .WithOne(o => o.Product)
-            .HasForeignKey(o => o.ProductId)
-            .OnDelete(DeleteBehavior.Cascade);
     }
 }

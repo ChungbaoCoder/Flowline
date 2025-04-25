@@ -1,12 +1,10 @@
-﻿namespace ps40165_User.Models;
+﻿using ps40165_User.Shared;
 
-public class Category
+namespace ps40165_User.Models;
+
+public class Category : BaseEntity
 {
-    public int CategoryId { get; set; }
-
     public string Name { get; set; } = string.Empty;
 
     public string Alias { get; set; } = string.Empty;
-
-    public string Description { get; set; } = string.Empty;
 }

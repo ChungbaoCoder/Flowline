@@ -2,24 +2,11 @@
 
 public class Response<T>
 {
-    public bool IsSuccess { get; set; }
+    public List<string>? Messages { get; set; }
 
-    public Error? Error { get; set; }
+    public List<string>? Errors { get; set; }
 
     public T? Data { get; set; }
-}
-
-public class Error
-{
-    public string Type { get; set; }
-
-    public List<string> Detail { get; set; }
-
-    public Error(string type, List<string> detail)
-    {
-        Type = type;
-        Detail = detail;
-    }
 }
 
 public class PaginatedList<T>

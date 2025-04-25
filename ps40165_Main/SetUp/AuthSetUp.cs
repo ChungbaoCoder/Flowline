@@ -1,8 +1,8 @@
-﻿using Microsoft.AspNetCore.Authentication.JwtBearer;
+﻿using System.Text;
+using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.IdentityModel.Tokens;
 using ps40165_Main.Database;
-using System.Text;
 
 namespace ps40165_Main.SetUp;
 
@@ -30,6 +30,8 @@ public static class AuthSetUp
                 IssuerSigningKey = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(config["Jwt:SecretKey"]))
             };
         });
+
+        services.AddAuthorization();
     }
 
     public static void ConfigureEFIdentity(this IServiceCollection services)
@@ -52,7 +54,7 @@ public static class AuthSetUp
             // User settings
             options.User.RequireUniqueEmail = true; // Ensure that each email is unique
         })
-            .AddEntityFrameworkStores<AppDbContext>()
-            .AddDefaultTokenProviders();
+        .AddEntityFrameworkStores<AppDbContext>()
+        .AddDefaultTokenProviders();
     }
 }

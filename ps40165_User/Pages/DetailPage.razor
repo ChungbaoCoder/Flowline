@@ -1,0 +1,202 @@
+﻿@page "/products/{id:int}/detail"
+
+@inject NavigationManager _nav
+@inject CategoryService _cate
+@inject ProductService _pro
+
+<div class="row">
+
+    <menu class="row col-lg-9 col-12">
+
+        <div class="col-md-4 col-12">
+            <img src="" alt="...">
+
+            <div class="row row-cols-3">
+
+                <div class="col">
+                    <img src="" alt="...">
+                </div>
+
+                <div class="col">
+                    <img src="" alt="...">
+                </div>
+
+                <div class="col">
+                    <img src="" alt="...">
+                </div>
+
+                <div class="col">
+                    <img src="" alt="...">
+                </div>
+
+            </div>
+        </div>
+
+        <div class="col-md-8 col-12">
+
+            <div class="border-bottom">
+
+                @if (!loading)
+                {
+                    <h4>@product.Name</h4>
+
+                    <p class="text-light-emphasis">@product.Price đ</p>
+
+                    <form class="row row-cols-md-auto g-2 align-items-center mb-3">
+                        <div class="col-12">
+
+                            <label class="visually-hidden">Số lượng</label>
+                            <div class="input-group">
+                                <div class="input-group-text">Số lượng</div>
+                                <input type="number" min="1" max="99" class="form-control" style="width: 80px">
+                            </div>
+
+                        </div>
+
+                        <div class="col-12">
+                            <button type="submit" class="btn btn-dark" @onclick="NavigateToCart">Thêm vào giỏ</button>
+                        </div>
+                    </form>
+                }
+
+            </div>
+
+            <div class="border-bottom">
+                <div class="my-3">
+
+                    <ul class="nav align-items-center">
+                        Loại sản phẩm:
+
+                        @if (!loading)
+                        {
+                            <li>
+                                <a href="#" class="p-0 ps-1 nav-link text-black">@product.Category.Name</a>
+                            </li>
+                        }
+
+                    </ul>
+
+                </div>
+            </div>
+
+            <div class="border-bottom">
+
+                <div class="my-3">
+                    <p>Nội dung:</p>
+
+                    @if (!loading)
+                    {
+                        <p>@product.Description</p>
+                    }
+
+                </div>
+
+            </div>
+
+        </div>
+
+        <div class="mt-3">
+            <ul class="list-unstyled nav justify-content-between">
+                <li>
+                    <a class="nav-link p-0">&laquo;- trước</a>
+                </li>
+                <li>
+                    <a class="nav-link p-0">kế tiếp -&raquo;</a>
+                </li>
+            </ul>
+        </div>
+
+        <div class="mt-3">
+
+            <h5 class="my-4">Những sản phẩm khác</h5>
+
+            <div class="row row-cols-1 row-cols-md-4 g-4">
+
+                @if (!loading)
+                {
+                    foreach (var product in products)
+                    {
+                        <div class="col">
+                            <a href="#" class="nav-link">
+                                <div class="border">
+                                    <img src="" alt="...">
+                                </div>
+
+                                <p>@product.Name</p>
+                            </a>
+
+                            <h5>@product.Price đ</h5>
+                        </div>
+                    }
+                }
+
+            </div>
+
+        </div>
+
+    </menu>
+
+    <aside class="col-lg-3 col-12">
+
+        <h4>Thể loại</h4>
+
+        <ul class="list-group list-group-flush">
+
+            @if (!loading)
+            {
+                foreach (var category in categories)
+                {
+                    <li class="list-group-item">
+                        <a class="nav-link">An item</a>
+                    </li>
+                }
+            }
+
+        </ul>
+
+    </aside>
+
+</div>
+
+@code {
+    [Parameter]
+    public int id { get; set; }
+
+    private Product product = new Product();
+
+    private List<Product> products = new List<Product>();
+
+    private List<Category> categories = new List<Category>();
+
+    private bool loading = true;
+
+    protected override async Task OnInitializedAsync()
+    {
+        await ProductDetailData();
+        await CategoryData();
+        loading = false;
+    }
+
+    private async Task ProductDetailData()
+    {
+        var response = await _pro.GetDetail(id);
+        product = response.Data;
+    }
+
+    private async Task ProductData()
+    {
+        var response = await _pro.GetList(1, 1, "");
+        products = response.Data;
+    }
+
+    private async Task CategoryData()
+    {
+        var response = await _cate.GetListCategories();
+        categories = response.Data;
+    }
+
+    private void NavigateToCart()
+    {
+        _nav.NavigateTo("/user/cart");
+    }
+}

@@ -1,28 +1,39 @@
 ﻿using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Metadata.Builders;
+using ps40165_Main.Shared;
+using ps40165_Main.Shared.ModelResult;
 
 namespace ps40165_Main.Models;
 
 public class OrderItem : BaseEntity
 {
-    public int OrderId { get; set; }
+    public int OrderId { get; private set; }
 
-    public int ProductId { get; set; }
+    public int ProductId { get; private set; }
 
-    public string? SKU { get; set; }
+    public string ProductName { get; private set; }
 
-    public string? ImagePath { get; set; }
+    public int Quantity { get; private set; }
 
-    public int Quantity { get; set; }
+    public decimal Price { get; private set; }
 
-    public decimal Price { get; set; }
+    public Order Order { get; private set; }
 
-    public decimal Total => Quantity * Price;
+    public OrderItem() { }
 
-    //RelationShip
-    public Order Order { get; set; }
+    public Result<OrderItem> AddOrderItem(int productId, string productName, int quantity, decimal price)
+    {
+        if (quantity < 1)
+        {
+            return Result<OrderItem>.Fail("Số lượng mua phải lớn hơn 0");
+        }
 
-    public Product Product { get; set; }
+        ProductId = productId;
+        ProductName = productName;
+        Quantity = quantity;
+        Price = price;
+        return Result<OrderItem>.Ok($"Thêm sản phẩm có mã id {productId} thành công");
+    }
 }
 
 public class OrderItemMap : IEntityTypeConfiguration<OrderItem>
@@ -31,7 +42,9 @@ public class OrderItemMap : IEntityTypeConfiguration<OrderItem>
     {
         builder.HasKey(oi => oi.Id);
 
-        builder.Ignore(oi => oi.Total);
+        builder.Property(oi => oi.ProductName)
+            .HasMaxLength(200)
+            .HasColumnType("nvarchar(200)");
 
         builder.Property(oi => oi.Price)
             .HasPrecision(18, 2);

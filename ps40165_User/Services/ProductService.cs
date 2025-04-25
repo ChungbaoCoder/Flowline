@@ -1,6 +1,5 @@
 ﻿using System.Net.Http.Json;
 using ps40165_User.Models;
-using ps40165_User.Requests;
 
 namespace ps40165_User.Services;
 
@@ -8,81 +7,41 @@ public class ProductService
 {
     private readonly HttpClient _client;
 
-    public ProductService(HttpClient client)
-    {
-        _client = client;
-    }
+    public ProductService(HttpClient client) => _client = client;
 
-    public async Task<Response<PaginatedList<Product>>> GetListAsync(int currentPage, int pageSize, string? searchText)
+    public async Task<Response<List<Product>>> GetList(int currentPage, int pageSize, string? searchText)
     {
-        try
+        var response = await _client.GetAsync($"Products");
+
+        if (response.IsSuccessStatusCode)
         {
-            var response = await _client.GetFromJsonAsync<Response<PaginatedList<Product>>>($"Products?pageNumber={currentPage}&pageSize={pageSize}&searchTerm={searchText}");
-            return response;
+            var product = await response.Content.ReadFromJsonAsync<Response<List<Product>>>();
+            return product;
         }
-        catch
-        {
-            
-        }
-        return new Response<PaginatedList<Product>>();
+        return new Response<List<Product>>();
     }
 
     public async Task<Response<Product>> GetById(int productId)
     {
-        try
-        {
-            var response = await _client.GetFromJsonAsync<Response<Product>>($"Products/{productId}");
-            return response;
-        }
-        catch
-        {
+        var response = await _client.GetAsync($"Products/{productId}");
 
+        if (response.IsSuccessStatusCode)
+        {
+            var product = await response.Content.ReadFromJsonAsync<Response<Product>>();
+            return product;
         }
         return new Response<Product>();
     }
 
-    public async Task PostProduct(AddProductRequest request)
+    public async Task<Response<Product>> GetDetail(int productId)
     {
-        try
-        {
-            var response = await _client.PostAsJsonAsync($"Products", request);
-        }
-        catch
-        {
+        var response = await _client.GetAsync($"Products/{productId}/detail");
 
-        }
-    }
-
-    public async Task<Response<Product>> PutProduct(int productId, EditProductRequest request)
-    {
-        try
+        if (response.IsSuccessStatusCode)
         {
-            var response = await _client.PutAsJsonAsync($"Products/{productId}", request);
-
-            if (response.IsSuccessStatusCode)
-            {
-                var editProduct = await response.Content.ReadFromJsonAsync<Response<Product>>();
-                return editProduct;
-            }
-        }
-        catch
-        {
-
+            var product = await response.Content.ReadFromJsonAsync<Response<Product>>();
+            return product;
         }
         return new Response<Product>();
-    }
-
-    public async Task<Response<string>> DeleteProduct(int productId)
-    {
-        try
-        {
-            var response = await _client.DeleteFromJsonAsync<Response<string>>($"Products/{productId}");
-            return response;
-        }
-        catch
-        {
-
-        }
-        return new Response<string>();
     }
 }

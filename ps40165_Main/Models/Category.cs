@@ -1,23 +1,39 @@
 ﻿using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Metadata.Builders;
+using ps40165_Main.Shared;
+using ps40165_Main.Shared.ModelResult;
 
 namespace ps40165_Main.Models;
 
 public class Category : BaseEntity
 {
-    public required string Name { get; set; }
+    public string Name { get; private set; }
 
-    public string? Alias { get; set; }
+    public string Alias { get; private set; }
 
-    public string Description { get; set; } = string.Empty;
+    public Category() { }
 
-    //Tracking Object Date
-    public DateTime CreatedOnUtc { get; set; }
+    public Result<Category> UpdateName(string name)
+    {
+        if (String.IsNullOrEmpty(name))
+        {
+            return Result<Category>.Fail("Tên không được để trống");
+        }
 
-    public DateTime UpdatedOnUtc { get; set; }
+        Name = name;
+        return Result<Category>.Ok("Cập nhật tên loại sản phẩm thành công");
+    }
 
-    //RelationShip
-    public ICollection<Product> Products { get; set; }
+    public Result<Category> UpdateAlias(string alias)
+    {
+        if (String.IsNullOrEmpty(alias))
+        {
+            return Result<Category>.Fail("Quan hệ không được để trống");
+        }
+
+        Alias = alias;
+        return Result<Category>.Ok("Cập nhật quan hệ loại sản phẩm thành công ");
+    }
 }
 
 public class CategoryMap : IEntityTypeConfiguration<Category>
@@ -33,25 +49,12 @@ public class CategoryMap : IEntityTypeConfiguration<Category>
 
         builder.Property(c => c.Alias)
             .IsRequired(false)
-            .HasMaxLength(100)
-            .HasColumnType("nvarchar(100)");
+            .HasMaxLength(150)
+            .HasColumnType("nvarchar(150)");
 
-        builder.Property(c => c.Description)
-            .IsRequired(false)
-            .HasMaxLength(250)
-            .HasColumnType("nvarchar(250)");
-
-        builder.Property(c => c.CreatedOnUtc)
-            .HasDefaultValueSql("GETUTCDATE()")
-            .ValueGeneratedOnAdd();
-
-        builder.Property(c => c.UpdatedOnUtc)
-            .HasDefaultValueSql("GETUTCDATE()")
-            .ValueGeneratedOnAddOrUpdate();
-
-        builder.HasMany(c => c.Products)
+        builder.HasMany<Product>()
             .WithOne(p => p.Category)
-            .HasForeignKey(c => c.CategoryId)
+            .HasForeignKey(p => p.CategoryId)
             .OnDelete(DeleteBehavior.Cascade);
     }
 }

@@ -15,13 +15,11 @@ public class AppDbContext : IdentityDbContext<IdentityUser>
 
     public DbSet<Product> Products { get; set; }
 
-    public DbSet<ProductImage> ProductImages { get; set; }
-
     public DbSet<Order> Orders { get; set; }
 
     public DbSet<OrderItem> OrderItems { get; set; }
 
-    public DbSet<Account> Accounts { get; set; }
+    public DbSet<Customer> Customers { get; set; }
 
     protected override void OnModelCreating(ModelBuilder modelBuilder)
     {
@@ -29,9 +27,8 @@ public class AppDbContext : IdentityDbContext<IdentityUser>
 
         new CategoryMap().Configure(modelBuilder.Entity<Category>());
         new ProductMap().Configure(modelBuilder.Entity<Product>());
-        new ProductImageMap().Configure(modelBuilder.Entity<ProductImage>());
-        new AccountMap().Configure(modelBuilder.Entity<Account>());
-        new OrderMap().Configure(modelBuilder.Entity<Order>());
-        new OrderItemMap().Configure(modelBuilder.Entity<OrderItem>());
+        new CustomerMap().Configure(modelBuilder.Entity<Customer>());
+        //new OrderMap().Configure(modelBuilder.Entity<Order>());
+        //new OrderItemMap().Configure(modelBuilder.Entity<OrderItem>());
     }
 }

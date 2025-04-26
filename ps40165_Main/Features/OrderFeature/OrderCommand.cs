@@ -1,4 +1,5 @@
-﻿using ps40165_Main.Models;
+﻿using ps40165_Main.Dtos.PostDto;
+using ps40165_Main.Models;
 using ps40165_Main.Shared;
 using ps40165_Main.Shared.Interfaces;
 
@@ -76,9 +77,9 @@ public class OrderCommand
         }
     }
 
-    public async Task<CentralResponse<Order>> Create(Order order, List<OrderItem> items)
+    public async Task<CentralResponse<Order>> Create(CreateOrderDto order)
     {
-        var result = await _svc.CreateOrder(order, items);
+        var result = await _svc.CreateOrder(order);
 
         if (result.IsSuccess)
         {

@@ -1,5 +1,6 @@
 ﻿using Microsoft.EntityFrameworkCore;
 using ps40165_Main.Database;
+using ps40165_Main.Dtos.PostDto;
 using ps40165_Main.Models;
 using ps40165_Main.Shared.Interfaces;
 using ps40165_Main.Shared.ModelResult;
@@ -16,6 +17,7 @@ public class OrderService : IOrder
     {
         var orders = await _context.Orders
             .AsNoTracking()
+            .Include(o => o.Items)
             .ToListAsync();
 
         if (orders.Count < 1)
@@ -28,6 +30,7 @@ public class OrderService : IOrder
     {
         var odr = await _context.Orders
             .AsNoTracking()
+            .Include(o => o.Items)
             .FirstOrDefaultAsync(o => o.Id == orderId);
 
         if (odr is null)
@@ -40,6 +43,7 @@ public class OrderService : IOrder
     {
         var odr = await _context.Orders
             .AsNoTracking()
+            .Include(o => o.Items)
             .Where(o => o.CustomerId == customerId)
             .ToListAsync();
 
@@ -49,10 +53,11 @@ public class OrderService : IOrder
         return Result<List<Order>>.Ok(odr, $"Tìm thấy đơn hàng của khách hàng có mã id {customerId}");
     }
 
-    public async Task<Result<Order>> CreateOrder(Order order, List<OrderItem> items)
+    public async Task<Result<Order>> CreateOrder(CreateOrderDto order)
     {
         var odr = new Order();
-        Result<Order> result = odr.CreateOrder(order.CustomerId, items);
+        var odrItems = MapToModel.Map(order.Items);
+        Result<Order> result = odr.CreateOrder(order.CustomerId, odrItems).Bind(r => odr.CalculateTotal());
 
         if (result.IsSuccess)
         {

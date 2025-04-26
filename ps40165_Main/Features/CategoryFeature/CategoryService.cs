@@ -1,6 +1,11 @@
-﻿using Microsoft.EntityFrameworkCore;
+﻿using Azure.Core;
+using Microsoft.EntityFrameworkCore;
 using ps40165_Main.Database;
+using ps40165_Main.Dtos.GetDto;
+using ps40165_Main.Dtos.PostDto;
+using ps40165_Main.Dtos.PutDto;
 using ps40165_Main.Models;
+using ps40165_Main.Shared;
 using ps40165_Main.Shared.Interfaces;
 using ps40165_Main.Shared.ModelResult;
 
@@ -36,14 +41,14 @@ public class CategoryService : ICategory
         return Result<Category>.Ok(cate, $"Tìm thấy loại sản phẩm có mã id {categoryId}");
     }
 
-    public async Task<Result<Category>> CreateCategory(Category category)
+    public async Task<Result<Category>> CreateCategory(CreateCategoryDto category)
     {
         var cate = new Category();
         Result<Category> result = cate.UpdateName(category.Name).Bind(r => cate.UpdateAlias(category.Alias));
 
         if (result.IsSuccess)
         {
-            await _context.Categories.AddAsync(category);
+            await _context.Categories.AddAsync(cate);
             await _context.SaveChangesAsync();
             result = Result<Category>.Ok("Thêm loại sản phẩm thành công");
         }
@@ -51,7 +56,7 @@ public class CategoryService : ICategory
         return result;
     }
 
-    public async Task<Result<Category>> UpdateCategory(int categoryId, Category category)
+    public async Task<Result<Category>> UpdateCategory(int categoryId, EditCategoryDto category)
     {
         var cate = await _context.Categories.FindAsync(categoryId);
 
@@ -79,5 +84,24 @@ public class CategoryService : ICategory
         _context.Categories.Remove(cate);
         await _context.SaveChangesAsync();
         return Result<Category>.Ok($"Xóa loại sản phẩm có mã id {categoryId} thành công");
+    }
+
+    public async Task<Result<PaginatedList<Category>>> GetPagination(int pageNumber, int pageSize, string? searchText)
+    {
+        var categories = await _context.Categories
+            .AsNoTracking()
+            .OrderBy(c => c.Id)
+            .Skip((pageNumber - 1) * pageSize)
+            .Take(pageSize)
+            .ToListAsync();
+
+        if (categories.Count < 1)
+            return Result<PaginatedList<Category>>.Fail("Không có loại sản phẩm trong danh sách");
+
+        int totalCount = await _context.Categories.CountAsync();
+        int totalPages = (int)Math.Ceiling(totalCount / (double)pageSize);
+
+        PaginatedList<Category> list = new PaginatedList<Category>(categories, pageNumber, pageSize, totalCount);
+        return Result<PaginatedList<Category>>.Ok(list, "Lấy danh sách loại sản phẩm thành công");
     }
 }

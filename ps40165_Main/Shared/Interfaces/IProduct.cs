@@ -1,4 +1,6 @@
-﻿using ps40165_Main.Dtos;
+﻿using ps40165_Main.Dtos.GetDto;
+using ps40165_Main.Dtos.PostDto;
+using ps40165_Main.Dtos.PutDto;
 using ps40165_Main.Models;
 using ps40165_Main.Shared.ModelResult;
 
@@ -6,15 +8,17 @@ namespace ps40165_Main.Shared.Interfaces;
 
 public interface IProduct
 {
-    public Task<Result<List<Product>>> GetListProducts();
+    Task<Result<List<Product>>> GetListProducts();
 
-    public Task<Result<Product>> GetProductById(int productId);
+    Task<Result<Product>> GetProductById(int productId);
 
-    public Task<Result<Product>> CreateProduct(Product product);
+    Task<Result<Product>> CreateProduct(CreateProductDto product);
 
-    public Task<Result<Product>> UpdateProduct(int productId, Product product);
+    Task<Result<Product>> UpdateProduct(int productId, EditProductDto product);
 
-    public Task<Result<Product>> DeleteProduct(int productId);
+    Task<Result<Product>> DeleteProduct(int productId);
 
-    public Task<Result<ProductDto>> GetDetail(int productId);
+    Task<Result<ProductDto>> GetDetail(int productId);
+
+    Task<Result<PaginatedList<Product>>> GetPagination(int pageNumber, int pageSize, string? searchText);
 }

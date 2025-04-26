@@ -7,17 +7,17 @@ namespace ps40165_Main.Models;
 
 public class OrderItem : BaseEntity
 {
-    public int OrderId { get; private set; }
+    public int OrderId { get; set; }
 
-    public int ProductId { get; private set; }
+    public int ProductId { get; set; }
 
-    public string ProductName { get; private set; }
+    public string ProductName { get; set; }
 
-    public int Quantity { get; private set; }
+    public int Quantity { get; set; }
 
-    public decimal Price { get; private set; }
+    public decimal Price { get; set; }
 
-    public Order Order { get; private set; }
+    public Order Order { get; set; }
 
     public OrderItem() { }
 

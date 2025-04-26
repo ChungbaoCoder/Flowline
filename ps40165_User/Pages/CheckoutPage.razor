@@ -1,0 +1,180 @@
+﻿@layout CheckoutLayout
+
+@inject CartService _cart
+@inject OrderService _odr
+
+<main class="container p-5">
+
+    <div class="py-5 text-center">
+        <h1 class="h2">Cổng thanh toán</h1>
+        <p class="lead"></p>
+    </div>
+
+    <div class="row g-5">
+        <div class="col-md-5 col-lg-4 order-md-last">
+            <h4 class="d-flex justify-content-between align-items-center mb-3">
+                <span class="text-primary">Giỏ hàng của bạn</span>
+                <span class="badge bg-primary rounded-pill">3</span>
+            </h4>
+            <ul class="list-group mb-3">
+
+                @if (products is not null)
+                {
+                    foreach (var product in products)
+                    {
+                        <li class="list-group-item d-flex justify-content-between lh-sm">
+                            <div>
+                                <h6 class="my-0">@product.Name</h6>
+                                <small class="text-body-secondary">@product.Description</small>
+                            </div>
+                            <span class="text-body-secondary">@product.Price đ</span>
+                        </li>
+                    }
+                }
+
+                <li class="list-group-item d-flex justify-content-between">
+                    <span>Tổng số tiền</span>
+                    <strong>@total</strong>
+                </li>
+
+            </ul>
+        </div>
+
+        <div class="col-md-7 col-lg-8">
+
+            <h4 class="mb-3">Thông tin thanh toán</h4>
+
+            <EditForm Model="order" class="needs-validation" novalidate="">
+                <div class="row g-3">
+                    <div class="col-sm-12">
+                        <label for="firstName" class="form-label">Họ tên</label>
+                        <input type="text" class="form-control" id="firstName" placeholder="" value="" required="">
+                        <div class="invalid-feedback">
+                            Cần nhập họ tên
+                        </div>
+                    </div>
+
+                    <div class="col-12">
+                        <label for="email" class="form-label">Email</label>
+                        <input type="email" class="form-control" id="email" placeholder="you@example.com">
+                        <div class="invalid-feedback">
+                            Ghi địa chỉ email cho thông tin đơn hàng
+                        </div>
+                    </div>
+
+                    <div class="col-12">
+                        <label for="address" class="form-label">Địa chỉ thanh toán 1</label>
+                        <input type="text" class="form-control" id="address" placeholder="1234 Main St" required="" @bind="order.Address1">
+                        <div class="invalid-feedback">
+                            Please enter your shipping address.
+                        </div>
+                    </div>
+
+                    <div class="col-12">
+                        <label for="address2" class="form-label">Địa chỉ thanh toán 2 <span class="text-body-secondary">(Optional)</span></label>
+                        <input type="text" class="form-control" id="address2" placeholder="Apartment or suite" @bind="order.Address2">
+                    </div>
+
+                    <hr class="my-4">
+
+                    <h4 class="mb-3">Payment</h4>
+
+                    <div class="my-3">
+
+                        <div class="form-check">
+                            <input id="credit" name="paymentMethod" type="radio" class="form-check-input" checked="" required="">
+                            <label class="form-check-label" for="credit">Tiền mặt</label>
+                        </div>
+
+                        <div class="form-check">
+                            <input id="credit" name="paymentMethod" type="radio" class="form-check-input" checked="" required="">
+                            <label class="form-check-label" for="credit">Credit card</label>
+                        </div>
+
+                        <div class="form-check">
+                            <input id="debit" name="paymentMethod" type="radio" class="form-check-input" required="">
+                            <label class="form-check-label" for="debit">Debit card</label>
+                        </div>
+
+                        <div class="form-check">
+                            <input id="paypal" name="paymentMethod" type="radio" class="form-check-input" required="">
+                            <label class="form-check-label" for="paypal">PayPal</label>
+                        </div>
+
+                    </div>
+
+                    <div class="row gy-3">
+                        <div class="col-md-6">
+                            <label for="cc-name" class="form-label">Name on card</label>
+                            <input type="text" class="form-control" id="cc-name" placeholder="" required="">
+                            <small class="text-body-secondary">Full name as displayed on card</small>
+                            <div class="invalid-feedback">
+                                Name on card is required
+                            </div>
+                        </div>
+
+                        <div class="col-md-6">
+                            <label for="cc-number" class="form-label">Credit card number</label>
+                            <input type="text" class="form-control" id="cc-number" placeholder="" required="">
+                            <div class="invalid-feedback">
+                                Credit card number is required
+                            </div>
+                        </div>
+
+                        <div class="col-md-3">
+                            <label for="cc-expiration" class="form-label">Expiration</label>
+                            <input type="text" class="form-control" id="cc-expiration" placeholder="" required="">
+                            <div class="invalid-feedback">
+                                Expiration date required
+                            </div>
+                        </div>
+
+                        <div class="col-md-3">
+                            <label for="cc-cvv" class="form-label">CVV</label>
+                            <input type="text" class="form-control" id="cc-cvv" placeholder="" required="">
+                            <div class="invalid-feedback">
+                                Security code required
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <hr class="my-4">
+
+                <button class="w-100 btn btn-primary btn-lg" type="submit" @onclick="CheckOut">Tiếp tục thanh toán</button>
+            </EditForm>
+
+        </div>
+    </div>
+
+</main>
+
+@code {
+    private List<Product> products = new List<Product>();
+
+    private Order order = new Order();
+
+    decimal total = 0;
+
+    protected override async Task OnInitializedAsync()
+    {
+        products = await _cart.GetCartAsync();
+        total = products.Sum(p => p.Quantity * p.Price);
+    }
+
+    private async Task CheckOut()
+    {
+        foreach (var product in products)
+        {
+            order.Items.Add(new OrderItem
+            {
+                ProductId = product.Id,
+                ProductName = product.Name,
+                Quantity = product.Quantity,
+                Price = product.Price
+            });
+        }
+
+        await _odr.CreateOrder(order);
+    }
+}

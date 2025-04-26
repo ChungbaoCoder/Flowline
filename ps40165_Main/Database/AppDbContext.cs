@@ -7,9 +7,7 @@ namespace ps40165_Main.Database;
 
 public class AppDbContext : IdentityDbContext<IdentityUser>
 {
-    public AppDbContext(DbContextOptions options) : base(options)
-    {
-    }
+    public AppDbContext(DbContextOptions options) : base(options) { }
 
     public DbSet<Category> Categories { get; set; }
 
@@ -19,6 +17,8 @@ public class AppDbContext : IdentityDbContext<IdentityUser>
 
     public DbSet<OrderItem> OrderItems { get; set; }
 
+    public DbSet<Account> Accounts { get; set; }
+
     public DbSet<Customer> Customers { get; set; }
 
     protected override void OnModelCreating(ModelBuilder modelBuilder)
@@ -27,8 +27,9 @@ public class AppDbContext : IdentityDbContext<IdentityUser>
 
         new CategoryMap().Configure(modelBuilder.Entity<Category>());
         new ProductMap().Configure(modelBuilder.Entity<Product>());
+        new AccountMap().Configure(modelBuilder.Entity<Account>());
         new CustomerMap().Configure(modelBuilder.Entity<Customer>());
-        //new OrderMap().Configure(modelBuilder.Entity<Order>());
-        //new OrderItemMap().Configure(modelBuilder.Entity<OrderItem>());
+        new OrderMap().Configure(modelBuilder.Entity<Order>());
+        new OrderItemMap().Configure(modelBuilder.Entity<OrderItem>());
     }
 }

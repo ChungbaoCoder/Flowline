@@ -1,4 +1,6 @@
-﻿using ps40165_Main.Models;
+﻿using ps40165_Main.Dtos.PostDto;
+using ps40165_Main.Dtos.PutDto;
+using ps40165_Main.Models;
 using ps40165_Main.Shared;
 using ps40165_Main.Shared.Interfaces;
 
@@ -54,7 +56,7 @@ public class CustomerCommand
         }
     }
 
-    public async Task<CentralResponse<Customer>> Create(Customer customer)
+    public async Task<CentralResponse<Customer>> Create(CreateCustomerDto customer)
     {
         var result = await _svc.CreateCustomer(customer);
 
@@ -76,7 +78,7 @@ public class CustomerCommand
         }
     }
 
-    public async Task<CentralResponse<Customer>> Update(int customerId, Customer customer)
+    public async Task<CentralResponse<Customer>> Update(int customerId, EditCustomerDto customer)
     {
         var result = await _svc.UpdateCustomer(customerId, customer);
 
@@ -113,6 +115,28 @@ public class CustomerCommand
         else
         {
             return new CentralResponse<Customer>
+            {
+                Errors = result.Errors,
+                Data = result.Data
+            };
+        }
+    }
+
+    public async Task<CentralResponse<PaginatedList<Customer>>> Paginate(int pageNumber, int pageSize, string? searchText)
+    {
+        var result = await _svc.GetPagination(pageNumber, pageSize, searchText);
+
+        if (result.IsSuccess)
+        {
+            return new CentralResponse<PaginatedList<Customer>>
+            {
+                Messages = result.Messages,
+                Data = result.Data
+            };
+        }
+        else
+        {
+            return new CentralResponse<PaginatedList<Customer>>
             {
                 Errors = result.Errors,
                 Data = result.Data

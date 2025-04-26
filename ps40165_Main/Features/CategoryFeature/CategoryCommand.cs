@@ -1,4 +1,6 @@
-﻿using ps40165_Main.Models;
+﻿using ps40165_Main.Dtos.PostDto;
+using ps40165_Main.Dtos.PutDto;
+using ps40165_Main.Models;
 using ps40165_Main.Shared;
 using ps40165_Main.Shared.Interfaces;
 
@@ -54,7 +56,7 @@ public class CategoryCommand
         }
     }
 
-    public async Task<CentralResponse<Category>> Create(Category category)
+    public async Task<CentralResponse<Category>> Create(CreateCategoryDto category)
     {
         var result = await _svc.CreateCategory(category);
 
@@ -76,7 +78,7 @@ public class CategoryCommand
         }
     }
 
-    public async Task<CentralResponse<Category>> Update(int categoryId, Category category)
+    public async Task<CentralResponse<Category>> Update(int categoryId, EditCategoryDto category)
     {
         var result = await _svc.UpdateCategory(categoryId, category);
 
@@ -113,6 +115,28 @@ public class CategoryCommand
         else
         {
             return new CentralResponse<Category>
+            {
+                Errors = result.Errors,
+                Data = result.Data
+            };
+        }
+    }
+
+    public async Task<CentralResponse<PaginatedList<Category>>> Paginate(int pageNumber, int pageSize, string? searchText)
+    {
+        var result = await _svc.GetPagination(pageNumber, pageSize, searchText);
+
+        if (result.IsSuccess)
+        {
+            return new CentralResponse<PaginatedList<Category>>
+            {
+                Messages = result.Messages,
+                Data = result.Data
+            };
+        }
+        else
+        {
+            return new CentralResponse<PaginatedList<Category>>
             {
                 Errors = result.Errors,
                 Data = result.Data

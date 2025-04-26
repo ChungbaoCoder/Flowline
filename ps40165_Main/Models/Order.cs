@@ -1,19 +1,28 @@
 ﻿using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Metadata.Builders;
 using ps40165_Main.Shared;
+using ps40165_Main.Shared.Enums;
 using ps40165_Main.Shared.ModelResult;
 
 namespace ps40165_Main.Models;
 
 public class Order : BaseEntity
 {
-    public int CustomerId { get; private set; }
+    public int CustomerId { get; set; }
 
-    public DateTime OrderDate { get; private set; }
+    public DateTime OrderDate { get; set; }
 
-    public List<OrderItem> Items { get; private set; } = new();
+    public string Address1 { get; set; }
 
-    public decimal Total { get; private set; }
+    public string Address2 { get; set; }
+
+    public List<OrderItem> Items { get; set; } = new();
+
+    public OrderStatus OrderStatus { get; set; }
+
+    public PaymentStatus PaymentStatus { get; set; }
+
+    public decimal Total { get; set; }
 
     public Order() { }
 
@@ -32,7 +41,32 @@ public class Order : BaseEntity
         CustomerId = customerId;
         Items = items;
         OrderDate = DateTime.Now;
+        OrderStatus = OrderStatus.Pending;
+        PaymentStatus = PaymentStatus.Unpaid;
         return Result<Order>.Ok("Tạo hóa đơn thành công");
+    }
+
+    public Result<Order> CalculateTotal()
+    {
+        Total = Items.Sum(i => i.Quantity * i.Price);
+        return Result<Order>.Ok();
+    }
+
+    public Result<Order> UpdateOrderStatus(OrderStatus status)
+    {
+        OrderStatus = status;
+        return Result<Order>.Ok();
+    }
+
+    public Result<Order> UpdatePaymentStatus(PaymentStatus status)
+    {
+        if (OrderStatus == OrderStatus.Cancelled)
+        {
+            return Result<Order>.Fail("Đơn hàng đã bị hủy để thanh toán");
+        }
+
+        PaymentStatus = status;
+        return Result<Order>.Ok();
     }
 }
 
@@ -45,8 +79,29 @@ public class OrderMap : IEntityTypeConfiguration<Order>
         builder.Property(o => o.Total)
             .HasPrecision(18, 2);
 
-        builder.HasMany<OrderItem>()
+        builder.Property(o => o.Address1)
+            .IsRequired()
+            .HasMaxLength(450)
+            .HasColumnType("nvarchar(450)");
+
+        builder.Property(o => o.Address2)
+            .IsRequired(false)
+            .HasMaxLength(450)
+            .HasColumnType("nvarchar(450)");
+
+        builder.Property(o => o.OrderStatus)
+            .HasConversion(o => o.ToString(), o => Enum.Parse<OrderStatus>(o))
+            .HasMaxLength(20)
+            .HasColumnType("varchar(20)");
+
+        builder.Property(o => o.PaymentStatus)
+            .HasConversion(o => o.ToString(), o => Enum.Parse<PaymentStatus>(o))
+            .HasMaxLength(20)
+            .HasColumnType("varchar(20)");
+
+        builder.HasMany(o => o.Items)
             .WithOne(oi => oi.Order)
-            .HasForeignKey(oi => oi.OrderId);
+            .HasForeignKey(oi => oi.OrderId)
+            .OnDelete(DeleteBehavior.Cascade);
     }
 }

@@ -1,5 +1,6 @@
 ﻿using Microsoft.AspNetCore.Mvc;
-using ps40165_Main.Models;
+using ps40165_Main.Dtos.PostDto;
+using ps40165_Main.Dtos.PutDto;
 using ps40165_Main.Shared.Interfaces;
 
 namespace ps40165_Main.Features.CustomerFeature;
@@ -20,10 +21,12 @@ public static class CustomerModule
 
         group.MapGet("/{id}", async (CustomerCommand cmd, int id) => await cmd.GetById(id));
 
-        group.MapPost("/", async (CustomerCommand cmd, [FromBody] Customer product) => await cmd.Create(product));
+        group.MapPost("/", async (CustomerCommand cmd, [FromBody] CreateCustomerDto product) => await cmd.Create(product));
 
-        group.MapPut("/{id}", async (CustomerCommand cmd, int id, [FromBody] Customer product) => await cmd.Update(id, product));
+        group.MapPut("/{id}", async (CustomerCommand cmd, int id, [FromBody] EditCustomerDto product) => await cmd.Update(id, product));
 
         group.MapDelete("/{id}", async (CustomerCommand cmd, int id) => await cmd.Delete(id));
+
+        group.MapGet("/paginate", async (CustomerCommand cmd, [FromQuery] int pageNumber = 1, [FromQuery] int pageSize = 5, [FromQuery] string? searchText = null) => await cmd.Paginate(pageNumber, pageSize, searchText));
     }
 }

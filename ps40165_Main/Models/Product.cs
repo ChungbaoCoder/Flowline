@@ -7,17 +7,25 @@ namespace ps40165_Main.Models;
 
 public class Product : BaseEntity
 {
-    public int CategoryId { get; private set; }
+    public int CategoryId { get; set; }
 
-    public string Name { get; private set; }
+    public string Name { get;  set; }
 
-    public string Description { get; private set; }
+    public string Description { get; set; }
 
-    public decimal Price { get; private set; }
+    public int Quantity { get; set; }
 
-    public Category Category { get; private set; }
+    public decimal Price { get; set; }
+
+    public Category Category { get; set; }
 
     public Product() { }
+
+    public Result<Product> Create(int categoryId)
+    {
+        CategoryId = categoryId;
+        return Result<Product>.Ok();
+    }
 
     public Result<Product> UpdateName(string name)
     {

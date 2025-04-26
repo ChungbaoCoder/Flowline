@@ -1,8 +1,8 @@
-﻿@page "/products/{id:int}/detail"
+﻿@page "/product/{id:int}"
 
-@inject NavigationManager _nav
 @inject CategoryService _cate
 @inject ProductService _pro
+@inject CartService _cart
 
 <div class="row">
 
@@ -36,7 +36,7 @@
 
             <div class="border-bottom">
 
-                @if (!loading)
+                @if (products is not null)
                 {
                     <h4>@product.Name</h4>
 
@@ -45,16 +45,16 @@
                     <form class="row row-cols-md-auto g-2 align-items-center mb-3">
                         <div class="col-12">
 
-                            <label class="visually-hidden">Số lượng</label>
                             <div class="input-group">
-                                <div class="input-group-text">Số lượng</div>
-                                <input type="number" min="1" max="99" class="form-control" style="width: 80px">
+                                <button type="button" class="input-group-text btn btn-sm" @onclick="Decrease">-</button>
+                                <input class="border rounded-1 text-center" style="width: 50px;" min="1" type="text" @bind="product.Quantity" />
+                                <button type="button" class="input-group-text btn btn-sm" @onclick="Increase">+</button>
                             </div>
 
                         </div>
 
                         <div class="col-12">
-                            <button type="submit" class="btn btn-dark" @onclick="NavigateToCart">Thêm vào giỏ</button>
+                            <button type="button" class="btn btn-dark" @onclick="() => AddToCart(product)">Thêm vào giỏ</button>
                         </div>
                     </form>
                 }
@@ -67,7 +67,7 @@
                     <ul class="nav align-items-center">
                         Loại sản phẩm:
 
-                        @if (!loading)
+                        @if (products is not null)
                         {
                             <li>
                                 <a href="#" class="p-0 ps-1 nav-link text-black">@product.Category.Name</a>
@@ -84,7 +84,7 @@
                 <div class="my-3">
                     <p>Nội dung:</p>
 
-                    @if (!loading)
+                    @if (products is not null)
                     {
                         <p>@product.Description</p>
                     }
@@ -112,7 +112,7 @@
 
             <div class="row row-cols-1 row-cols-md-4 g-4">
 
-                @if (!loading)
+                @if (products is not null)
                 {
                     foreach (var product in products)
                     {
@@ -142,12 +142,12 @@
 
         <ul class="list-group list-group-flush">
 
-            @if (!loading)
+            @if (categories is not null)
             {
                 foreach (var category in categories)
                 {
                     <li class="list-group-item">
-                        <a class="nav-link">An item</a>
+                        <a class="nav-link">@category.Name</a>
                     </li>
                 }
             }
@@ -168,13 +168,10 @@
 
     private List<Category> categories = new List<Category>();
 
-    private bool loading = true;
-
     protected override async Task OnInitializedAsync()
     {
         await ProductDetailData();
         await CategoryData();
-        loading = false;
     }
 
     private async Task ProductDetailData()
@@ -185,18 +182,31 @@
 
     private async Task ProductData()
     {
-        var response = await _pro.GetList(1, 1, "");
+        var response = await _pro.GetList();
         products = response.Data;
     }
 
     private async Task CategoryData()
     {
-        var response = await _cate.GetListCategories();
+        var response = await _cate.GetList(1, 1, "");
         categories = response.Data;
     }
 
-    private void NavigateToCart()
+    private async Task AddToCart(Product product)
     {
-        _nav.NavigateTo("/user/cart");
+        await _cart.AddToCartAsync(product, true);
+    }
+}
+
+@code {
+    private void Decrease()
+    {
+        if (product.Quantity > 0)
+            product.Quantity--;
+    }
+
+    private void Increase()
+    {
+        product.Quantity++;
     }
 }

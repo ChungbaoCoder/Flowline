@@ -1,4 +1,6 @@
-﻿using ps40165_Main.Dtos;
+﻿using ps40165_Main.Dtos.GetDto;
+using ps40165_Main.Dtos.PostDto;
+using ps40165_Main.Dtos.PutDto;
 using ps40165_Main.Models;
 using ps40165_Main.Shared;
 using ps40165_Main.Shared.Interfaces;
@@ -55,7 +57,7 @@ public class ProductCommand
         }
     }
 
-    public async Task<CentralResponse<Product>> Create(Product product)
+    public async Task<CentralResponse<Product>> Create(CreateProductDto product)
     {
         var result = await _svc.CreateProduct(product);
 
@@ -77,7 +79,7 @@ public class ProductCommand
         }
     }
 
-    public async Task<CentralResponse<Product>> Update(int productId, Product product)
+    public async Task<CentralResponse<Product>> Update(int productId, EditProductDto product)
     {
         var result = await _svc.UpdateProduct(productId, product);
 
@@ -136,6 +138,28 @@ public class ProductCommand
         else
         {
             return new CentralResponse<ProductDto>
+            {
+                Errors = result.Errors,
+                Data = result.Data
+            };
+        }
+    }
+
+    public async Task<CentralResponse<PaginatedList<Product>>> Paginate(int pageNumber, int pageSize, string? searchText)
+    {
+        var result = await _svc.GetPagination(pageNumber, pageSize, searchText);
+
+        if (result.IsSuccess)
+        {
+            return new CentralResponse<PaginatedList<Product>>
+            {
+                Messages = result.Messages,
+                Data = result.Data
+            };
+        }
+        else
+        {
+            return new CentralResponse<PaginatedList<Product>>
             {
                 Errors = result.Errors,
                 Data = result.Data

@@ -1,5 +1,5 @@
 ﻿using Microsoft.AspNetCore.Mvc;
-using ps40165_Main.Models;
+using ps40165_Main.Dtos.PostDto;
 using ps40165_Main.Shared.Interfaces;
 
 namespace ps40165_Main.Features.OrderFeature;
@@ -18,11 +18,11 @@ public static class OrderModule
 
         group.MapGet("/", async (OrderCommand cmd) => await cmd.GetList());
 
-        group.MapGet("/{orderId}", async (OrderCommand cmd, int id) => await cmd.GetById(id));
+        group.MapGet("/{orderId}", async (OrderCommand cmd, int orderId) => await cmd.GetById(orderId));
 
-        group.MapGet("order/{customerId}", async (OrderCommand cmd, int id) => await cmd.GetByCustomerId(id));
+        group.MapGet("/customer/{customerId}", async (OrderCommand cmd, int customerId) => await cmd.GetByCustomerId(customerId));
 
-        group.MapPost("/", async (OrderCommand cmd, [FromBody] Order order, List<OrderItem> items) => await cmd.Create(order, items));
+        group.MapPost("/", async (OrderCommand cmd, [FromBody] CreateOrderDto order) => await cmd.Create(order));
 
         //group.MapPut("/{id}", async (OrderCommand cmd, int id, [FromBody] Order order) => await cmd.Update(id, order));
 

@@ -1,12 +1,46 @@
-﻿<div>
+﻿@inject CartService _cart
+
+<div>
     <NavLink class="nav-link text-body-secondary" href="/cart">
 
-        <i class="fa fa-shopping-cart"></i>
-        <b>Giỏ hàng của tôi</b>
+        <div class="position-relative">
+            <i class="fa fa-shopping-cart"></i>
+            <b>Giỏ hàng của tôi</b>
+
+            @if (cartCount > 0)
+            {
+                <span class="position-absolute top-0 start-100 translate-middle badge rounded-pill bg-danger">
+                    @((cartCount > 99) ? "99+" : cartCount.ToString())
+                </span>
+            }
+
+        </div>
 
     </NavLink>
 </div>
 
 @code {
+    private int cartCount;
 
+    protected override async Task OnInitializedAsync()
+    {
+        _cart.OnChange += OnCartChanged;
+        await LoadCartCount();
+    }
+
+    private async void OnCartChanged()
+    {
+        await LoadCartCount();
+        StateHasChanged();
+    }
+
+    private async Task LoadCartCount()
+    {
+        cartCount = await _cart.CountAsync();
+    }
+
+    public void Dispose()
+    {
+        _cart.OnChange -= OnCartChanged;
+    }
 }

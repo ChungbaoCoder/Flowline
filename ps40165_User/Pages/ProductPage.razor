@@ -1,6 +1,7 @@
 ﻿@page "/products"
 
-@inject ProductService _svc
+@inject ProductService _pro
+@inject CategoryService _cate
 
 <div class="row">
 
@@ -16,63 +17,52 @@
 
         <div class="row row-cols-1 row-cols-md-3 g-4 mt-2">
 
-            <div class="col">
-                <div class="card h-100">
-                    <img src="..." class="card-img-top" alt="...">
-                    <div class="card-body">
-                        <h5 class="card-title">Card title</h5>
-                        <p class="card-text">This is a longer card with supporting text below as a natural lead-in to additional content. This content is a little bit longer.</p>
-                    </div>
-                </div>
-            </div>
+            @if (products is not null)
+            {
+                foreach (var product in products)
+                {
+                    int id = product.Id;
 
-            <div class="col">
-                <div class="card h-100">
-                    <img src="..." class="card-img-top" alt="...">
-                    <div class="card-body">
-                        <h5 class="card-title">Card title</h5>
-                        <p class="card-text">This is a longer card with supporting text below as a natural lead-in to additional content. This content is a little bit longer.</p>
-                    </div>
-                </div>
-            </div>
+                    <div class="col">
+                        <div class="card h-100">
 
-            <div class="col">
-                <div class="card h-100">
-                    <img src="..." class="card-img-top" alt="...">
-                    <div class="card-body">
-                        <h5 class="card-title">Card title</h5>
-                        <p class="card-text">This is a longer card with supporting text below as a natural lead-in to additional content. This content is a little bit longer.</p>
-                    </div>
-                </div>
-            </div>
+                            <a class="nav-link" href="/product/@id">
+                                <img src="..." class="card-img-top" alt="...">
+                                <div class="card-body">
+                                    <h5 class="card-title">@product.Name</h5>
+                                    <p class="card-text">@product.Description</p>
+                                </div>
 
-            <div class="col">
-                <div class="card h-100">
-                    <img src="..." class="card-img-top" alt="...">
-                    <div class="card-body">
-                        <h5 class="card-title">Card title</h5>
-                        <p class="card-text">This is a longer card with supporting text below as a natural lead-in to additional content. This content is a little bit longer.</p>
+                                <div class="container d-flex justify-content-end px-0">
+                                    <span>@product.Price đ</span>
+                                </div>
+                            </a>
+
+                        </div>
                     </div>
-                </div>
-            </div>
+                }
+            }
 
         </div>
 
         <nav class="mt-3">
             <ul class="pagination">
 
-                <li class="page-item">
-                    <a class="page-link" href="#">
+                <li class="page-item @(pageNumber == 1 ? "disabled" : "")">
+                    <a class="page-link" href="#" @onclick="PreviousPage">
                         <span aria-hidden="true">&laquo;</span>
                     </a>
                 </li>
 
-                <li class="page-item"><a class="page-link" href="#">1</a></li>
-                <li class="page-item"><a class="page-link" href="#">2</a></li>
-                <li class="page-item"><a class="page-link" href="#">3</a></li>
+                @for (int i = 1; i <= totalPage; i++)
+                {
+                    <li class="page-item @(i == pageNumber ? "active" : "")">
+                        <a class="page-link" href="#" @onclick="() => GoToPage(i)">@i</a>
+                    </li>
+                }
 
-                <li class="page-item">
-                    <a class="page-link" href="#">
+                <li class="page-item @(pageNumber == totalPage ? "disabled" : "")">
+                    <a class="page-link" href="#" @onclick="NextPage">
                         <span aria-hidden="true">&raquo;</span>
                     </a>
                 </li>
@@ -87,11 +77,15 @@
         <h4>Thể loại</h4>
 
         <ul class="list-group list-group-flush">
-            <li class="list-group-item">An item</li>
-            <li class="list-group-item">A second item</li>
-            <li class="list-group-item">A third item</li>
-            <li class="list-group-item">A fourth item</li>
-            <li class="list-group-item">And a fifth one</li>
+
+            @if (categories is not null)
+            {
+                foreach (var category in categories)
+                {
+                    <li class="list-group-item">@category.Name</li>
+                }
+            }
+
         </ul>
 
     </aside>
@@ -101,22 +95,41 @@
 @code {
     private List<Product> products = new List<Product>();
 
+    private List<Category> categories = new List<Category>();
+
     private string? searchText;
 
     protected override async Task OnInitializedAsync()
     {
-        await PopulateData();
+        await PopulateProduct();
     }
 
-    private async Task PopulateData()
+    private async Task PopulateProduct()
     {
-        var response = await _svc.GetList(1, 25, searchText);
+        var response = await _pro.GetPagination(pageNumber, pageSize, searchText);
 
         if (response is not null)
         {
-            products = response.Data;
+            products = response.Data.Items;
+            totalItems = response.Data.TotalCount;
+            totalPage = response.Data.TotalPages;
+            pageNumber = response.Data.PageNumber;
         }
     }
+
+    public async Task PopulateCategory()
+    {
+        var response = await _cate.GetList(1, 5, searchText);
+
+        if (response is not null)
+        {
+            categories = response.Data;
+        }
+    }
+}
+
+@code {
+
 }
 
 @code {
@@ -128,10 +141,10 @@
 
     private int totalPage;
 
-    private async Task ChangePage(int page)
+    private async Task GoToPage(int page)
     {
         pageNumber = page;
-        await PopulateData();
+        await PopulateProduct();
     }
 
     private async Task NextPage()
@@ -139,7 +152,7 @@
         if (pageNumber < totalPage)
         {
             pageNumber++;
-            await PopulateData();
+            await PopulateProduct();
         }
     }
 
@@ -148,25 +161,25 @@
         if (pageNumber > 1)
         {
             pageNumber--;
-            await PopulateData();
+            await PopulateProduct();
         }
     }
 
     public async Task First()
     {
         pageNumber = 1;
-        await PopulateData();
+        await PopulateProduct();
     }
 
     public async Task Last()
     {
         pageNumber = totalPage;
-        await PopulateData();
+        await PopulateProduct();
     }
 
     private async Task SizeDisplayChanged(ChangeEventArgs e)
     {
         pageSize = int.Parse(e.Value.ToString());
-        await PopulateData();
+        await PopulateProduct();
     }
 }

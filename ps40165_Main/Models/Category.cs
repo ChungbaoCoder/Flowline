@@ -7,9 +7,11 @@ namespace ps40165_Main.Models;
 
 public class Category : BaseEntity
 {
-    public string Name { get; private set; }
+    public string Name { get; set; }
 
-    public string Alias { get; private set; }
+    public string Alias { get; set; }
+
+    public List<Product> Products { get; set; } = new();
 
     public Category() { }
 
@@ -52,7 +54,7 @@ public class CategoryMap : IEntityTypeConfiguration<Category>
             .HasMaxLength(150)
             .HasColumnType("nvarchar(150)");
 
-        builder.HasMany<Product>()
+        builder.HasMany(c => c.Products)
             .WithOne(p => p.Category)
             .HasForeignKey(p => p.CategoryId)
             .OnDelete(DeleteBehavior.Cascade);

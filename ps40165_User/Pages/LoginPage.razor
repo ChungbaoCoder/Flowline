@@ -1,11 +1,13 @@
 ﻿@page "/account/login"
 
+@inject UserAccountService _acc
+
 <h4>Đăng nhập tài khoản</h4>
 
 <div class="row justify-content-center">
     <div class="col-md-6">
 
-        <EditForm Model="request" class="py-4" >
+        <EditForm Model="request" class="py-4" OnSubmit="Login">
 
             <div class="mb-3 row">
                 <label class="col-sm-3 col-12 col-form-label">Tên người dùng</label>
@@ -40,10 +42,8 @@
 @code {
     private LoginUser request = new LoginUser();
 
-    class LoginUser
+    private async Task Login()
     {
-        public string? Name;
-        public string? Email;
-        public string? Password;
+        await _acc.LoginAccount(request);
     }
 }

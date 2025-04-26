@@ -1,5 +1,7 @@
 ﻿@page "/cart"
 
+@inject CartService _cart
+
 <div class="row">
 
     <div class="col">
@@ -10,83 +12,56 @@
 
             <form action="/cart" method="post">
 
-                <div class="row my-4 border-bottom">
+                @if (products is not null)
+                {
+                    foreach (var product in products)
+                    {
+                        <div @key="product.Id" class="row my-4 border-bottom">
 
-                    <div class="col-lg-3 col-md-3 col-sm-3">
-                        <a><img src="" alt="..."></a>
-                    </div>
+                            <div class="col-lg-3 col-md-3 col-sm-3">
+                                <a><img src="" alt="..."></a>
+                            </div>
 
-                    <div class="col-lg-9 col-md-9 col-sm-9">
+                            <div class="col-lg-9 col-md-9 col-sm-9">
 
-                        <div class="d-flex justify-content-between">
-                            <p>Sản phẩm tên</p>
+                                <div class="d-flex justify-content-between">
+                                    <p>@product.Name</p>
 
-                            <a><i class="fa fa-times"></i></a>
-                        </div>
+                                    <a><i class="fa fa-times"></i></a>
+                                </div>
 
-                        <p class="border-bottom text-body-secondary">Loại sản phẩm</p>
+                                <p class="border-bottom text-body-secondary">@product.Category.Name</p>
 
-                        <div>
-                            <div class="row my-4">
+                                <div>
+                                    <div class="d-flex justify-content-between align-items-center my-4">
 
-                                <label class="col">Giá sp</label>
+                                        <div class="">
+                                            <label>Giá sản phẩm:</label>
+                                            <label>@product.Price đ</label>
+                                        </div>
 
-                                <div class="col">
-                                    <label>Số lượng</label>
-                                    <input type="number">
+                                        <div class="d-flex">
+
+                                            <button type="button" class="input-group-text btn btn-sm" @onclick="() => ChangeQuantity(product, -1)">-</button>
+                                            <input class="border rounded-1 text-center" style="width: 50px;" min="1" type="text" @bind="product.Quantity" @bind:after="() => UpdateQuantity(product)" />
+                                            <button type="button" class="input-group-text btn btn-sm" @onclick="() => ChangeQuantity(product, 1)">+</button>
+
+                                        </div>
+
+                                    </div>
+
+                                    <h5 class="d-flex justify-content-end gap-2">
+                                        Tổng tiền:
+                                        <span>@(product.Price * product.Quantity) đ</span>
+                                    </h5>
+
                                 </div>
 
                             </div>
 
-                            <h5 class="d-flex justify-content-end gap-2">
-                                Tổng tiền:
-                                <span>2340</span>
-                            </h5>
-
                         </div>
-
-                    </div>
-
-                </div>
-
-                <div class="row my-4 border-bottom">
-
-                    <div class="col-lg-3 col-md-3 col-sm-3">
-                        <a><img src="" alt="..."></a>
-                    </div>
-
-                    <div class="col-lg-9 col-md-9 col-sm-9">
-
-                        <div class="d-flex justify-content-between">
-                            <p>Sản phẩm tên</p>
-
-                            <a><i class="fa fa-times"></i></a>
-                        </div>
-
-                        <p class="border-bottom text-body-secondary">Loại sản phẩm</p>
-
-                        <div>
-                            <div class="row my-4">
-
-                                <label class="col">Giá sp</label>
-
-                                <div class="col">
-                                    <label>Số lượng</label>
-                                    <input type="number">
-                                </div>
-
-                            </div>
-
-                            <h5 class="d-flex justify-content-end gap-2">
-                                Tổng tiền:
-                                <span>2340</span>
-                            </h5>
-
-                        </div>
-
-                    </div>
-
-                </div>
+                    }
+                }
 
                 <div class="my-4">
                     <a class="text-decoration-none text-body" href="">Tiếp tục mua sắm</a>
@@ -120,5 +95,30 @@
 </div>
 
 @code {
+    private List<Product> products = new List<Product>();
 
+    protected override async Task OnInitializedAsync()
+    {
+        products = await _cart.GetCartAsync();
+    }
+
+    private async Task UpdateQuantity(Product product)
+    {
+        if (product.Quantity < 1)
+        {
+            product.Quantity = 1;
+        }
+
+        await _cart.UpdateCartAsync(product.Id, product.Quantity);
+    }
+
+    private async Task ChangeQuantity(Product product, int delta)
+    {
+        product.Quantity += delta;
+
+        if (product.Quantity < 1)
+            product.Quantity = 1;
+
+        await _cart.UpdateCartAsync(product.Id, product.Quantity);
+    }
 }

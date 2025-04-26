@@ -1,11 +1,13 @@
 ﻿@page "/account/register"
 
+@inject UserAccountService _acc
+
 <h4>Đăng kí tài khoản mới</h4>
 
 <div class="row justify-content-center">
     <div class="col-md-6">
 
-        <EditForm Model="request" class="py-4">
+        <EditForm Model="request" class="py-4" OnSubmit="Register">
 
             <div class="mb-3 row">
                 <label class="col-sm-3 col-12 col-form-label">Tên người dùng</label>
@@ -47,11 +49,8 @@
 @code {
     private RegisterUser request = new RegisterUser();
 
-    class RegisterUser
+    private async Task Register()
     {
-        public string? Name;
-        public string? Email;
-        public string? Password;
-        public string? CheckPassword;
+        await _acc.RegisterAccount(request);
     }
 }

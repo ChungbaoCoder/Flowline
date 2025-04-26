@@ -1,4 +1,8 @@
-﻿@layout CheckoutLayout
+﻿@page "/cart/checkout"
+
+@attribute [Authorize]
+
+@layout CheckoutLayout
 
 @inject CartService _cart
 @inject OrderService _odr
@@ -14,7 +18,14 @@
         <div class="col-md-5 col-lg-4 order-md-last">
             <h4 class="d-flex justify-content-between align-items-center mb-3">
                 <span class="text-primary">Giỏ hàng của bạn</span>
-                <span class="badge bg-primary rounded-pill">3</span>
+                <span class="badge bg-primary rounded-pill">
+
+                    @if (products is not null)
+                    {
+                        @products.Count()
+                    }
+
+                </span>
             </h4>
             <ul class="list-group mb-3">
 
@@ -25,7 +36,7 @@
                         <li class="list-group-item d-flex justify-content-between lh-sm">
                             <div>
                                 <h6 class="my-0">@product.Name</h6>
-                                <small class="text-body-secondary">@product.Description</small>
+                                <small class="text-body-secondary">x @product.Quantity</small>
                             </div>
                             <span class="text-body-secondary">@product.Price đ</span>
                         </li>
@@ -34,7 +45,7 @@
 
                 <li class="list-group-item d-flex justify-content-between">
                     <span>Tổng số tiền</span>
-                    <strong>@total</strong>
+                    <strong>@total đ</strong>
                 </li>
 
             </ul>

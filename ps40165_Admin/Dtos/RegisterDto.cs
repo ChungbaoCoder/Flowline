@@ -1,6 +1,6 @@
-﻿namespace ps40165_User.Models;
+﻿namespace ps40165_Admin.Dtos.PostDto;
 
-public class RegisterUser
+public class RegisterDto
 {
     public string Name { get; set; } = string.Empty;
 
@@ -8,5 +8,5 @@ public class RegisterUser
 
     public string Password { get; set; } = string.Empty;
 
-    public string CheckPassword { get; set; } = string.Empty;
+    public string ConfirmPassword { get; set; } = string.Empty;
 }

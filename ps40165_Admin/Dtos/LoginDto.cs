@@ -1,6 +1,6 @@
-﻿namespace ps40165_User.Models;
+﻿namespace ps40165_Admin.Dtos.PostDto;
 
-public class LoginUser
+public class LoginDto
 {
     public string Email { get; set; } = string.Empty;
 

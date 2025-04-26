@@ -1,0 +1,74 @@
+﻿@page "/Categories/Create"
+
+@rendermode InteractiveServer
+
+@inject NavigationManager _navigation
+@inject IHttpClientFactory _client
+
+<div class="d-flex justify-content-between align-items-center">
+
+    <div class="default-link">
+        <a class="" href="#">⬅</a>
+
+        <h5 class="d-inline">Thêm loại sản phẩm</h5>
+    </div>
+
+    <div>
+        <button class="btn btn-primary">✓ Lưu</button>
+        <button class="btn btn-secondary">Lưu và chỉnh sửa thêm</button>
+    </div>
+
+</div>
+
+<div class="row gap-3 mt-3">
+
+    <aside class="col-2 border-end">
+        <ul class="list-unstyled default-link">
+
+            <li class="mt-2"><a href="">Thông tin</a></li>
+            <li class="mt-2"><a href="">Hình ảnh</a></li>
+
+        </ul>
+    </aside>
+
+    <main class="col-9">
+
+        <EditForm Model="@request" FormName="CreateCategory" OnValidSubmit="HandleValidSubmit" OnInvalidSubmit="HandleInvalidSubmit">
+            <DataAnnotationsValidator />
+            <ValidationSummary />
+
+            <div class="row mt-3">
+                <label class="col form-label" for="">Tên loại sản phẩm</label>
+                <InputText class="col form-control" @bind-Value="request.Name"></InputText>
+                <div class="col"></div>
+            </div>
+
+            <div class="row mt-3">
+                <label class="col form-label" for="">Alias</label>
+                <InputText class="col form-control" @bind-Value="request.Alias"></InputText>
+                <div class="col"></div>
+            </div>
+
+        </EditForm>
+
+    </main>
+
+</div>
+
+@code {
+    private CreateCategoryDto request = new CreateCategoryDto();
+
+    private async Task HandleValidSubmit()
+    {
+        CategoryApi api = new CategoryApi(_client.CreateClient("meta"));
+
+        await api.AddCategory(request);
+
+        Console.WriteLine("Check");
+    }
+
+    private void HandleInvalidSubmit()
+    {
+        Console.WriteLine("Form is invalid.");
+    }
+}

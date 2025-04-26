@@ -19,7 +19,7 @@ public class UserAccountService
             var json = JsonSerializer.Serialize(user);
             var content = new StringContent(json, Encoding.UTF8, "application/json");
 
-            var response = await _client.PostAsync($"/api/account/register", content);
+            var response = await _client.PostAsync($"/api/accounts/register", content);
 
             if (response.IsSuccessStatusCode)
             {
@@ -45,7 +45,7 @@ public class UserAccountService
             var json = JsonSerializer.Serialize(user);
             var content = new StringContent(json, Encoding.UTF8, "application/json");
 
-            var response = await _client.PostAsync($"/api/account/login", content);
+            var response = await _client.PostAsync($"/api/accounts/login", content);
 
             if (response.IsSuccessStatusCode)
             {

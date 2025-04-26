@@ -1,5 +1,6 @@
 ﻿using Microsoft.EntityFrameworkCore;
 using ps40165_Main.Database;
+using ps40165_Main.Dtos;
 using ps40165_Main.Dtos.PostDto;
 using ps40165_Main.Models;
 using ps40165_Main.Shared.Interfaces;

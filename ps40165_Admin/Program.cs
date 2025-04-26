@@ -6,6 +6,11 @@ var builder = WebApplication.CreateBuilder(args);
 builder.Services.AddRazorComponents()
     .AddInteractiveServerComponents();
 
+builder.Services.AddHttpClient();
+builder.Services.AddHttpClient("meta", c => {
+    c.BaseAddress = new Uri(builder.Configuration.GetValue<string>("MetaApi"));
+});
+
 var app = builder.Build();
 
 // Configure the HTTP request pipeline.

@@ -1,6 +1,6 @@
 ﻿using ps40165_Main.Models;
 
-namespace ps40165_Main.Dtos.PostDto;
+namespace ps40165_Main.Dtos;
 
 public class CreateOrderItemDto
 {

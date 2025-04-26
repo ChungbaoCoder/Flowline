@@ -1,6 +1,38 @@
 ﻿@inherits LayoutComponentBase
 
-@Body
+<div class="page container">
+    <div class="page-main">
+
+        <header class="container">
+            <nav class="nav navbar default-link">
+
+                <div class="d-flex gap-3 p-0">
+                    <a href="/">Dashboard</a>
+
+                    <ul class="d-flex gap-3 list-unstyled">
+                        <li>
+                            <NavLink href="/categories">Categories</NavLink>
+                        </li>
+                        <li><a href="">Products</a></li>
+                        <li><a href="">Orders</a></li>
+                        <li><a href="">Accounts</a></li>
+                    </ul>
+                </div>
+
+                <div class="d-flex gap-3 list-unstyled">
+                    <i>icon</i>
+                    <span><a href="">Account</a></span>
+                </div>
+
+            </nav>
+        </header>
+
+        <div class="content container bg-light p-3">
+            @Body
+        </div>
+    </div>
+</div>
+
 
 <div id="blazor-error-ui" data-nosnippet>
     An unhandled error has occurred.

@@ -19,7 +19,7 @@ public static class UserAccountModule
 
     public static void ApiUserAccount(this IEndpointRouteBuilder endpoints)
     {
-        var group = endpoints.MapGroup("/api/account");
+        var group = endpoints.MapGroup("/api/accounts");
 
         group.MapPost("/register", async (UserAccountCommand cmd, [FromBody] RegisterDto acc) => await cmd.Register(acc));
 

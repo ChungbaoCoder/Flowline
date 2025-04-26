@@ -1,6 +1,8 @@
 ﻿@page "/account/login"
 
 @inject UserAccountService _acc
+@inject AuthStateProvider _auth
+@inject NavigationManager _nav
 
 <h4>Đăng nhập tài khoản</h4>
 
@@ -8,13 +10,6 @@
     <div class="col-md-6">
 
         <EditForm Model="request" class="py-4" OnSubmit="Login">
-
-            <div class="mb-3 row">
-                <label class="col-sm-3 col-12 col-form-label">Tên người dùng</label>
-                <div class="col-sm-9 p-1">
-                    <InputText class="form-control" type="text" @bind-Value="request.Name"></InputText>
-                </div>
-            </div>
 
             <div class="mb-3 row">
                 <label class="col-sm-3 col-12 col-form-label">Email</label>
@@ -44,6 +39,10 @@
 
     private async Task Login()
     {
-        await _acc.LoginAccount(request);
+        var result = await _acc.LoginAccount(request);
+
+        await _auth.MarkUserAsAuthenticated(result.Data.TokenString);
+
+        _nav.NavigateTo("/");
     }
 }

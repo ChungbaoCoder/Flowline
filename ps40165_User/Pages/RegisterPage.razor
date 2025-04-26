@@ -1,6 +1,7 @@
 ﻿@page "/account/register"
 
 @inject UserAccountService _acc
+@inject NavigationManager _nav
 
 <h4>Đăng kí tài khoản mới</h4>
 
@@ -52,5 +53,7 @@
     private async Task Register()
     {
         await _acc.RegisterAccount(request);
+
+        _nav.NavigateTo("/account/login");
     }
 }
